@@ -97,6 +97,17 @@ export type MarksheetData = {
   totalMarks: number;
 };
 
+interface FranchiseData {
+  name: string;
+  father: string;
+  vill: string;
+  createdAt: string | Date;
+  email: string;
+  AddressLine: string;
+  id: number;
+  ImageLink: string;
+}
+
 const RADIUS = 470;
 async function makeCircularImage(imageLink: string) {
   try {
@@ -201,8 +212,20 @@ export async function fill_franchise({
   AddressLine,
   id,
   ImageLink,
-}: any) {
+}: FranchiseData) {
   try {
+    if (
+      !name ||
+      !father ||
+      !email ||
+      !vill ||
+      !createdAt ||
+      !ImageLink ||
+      !id
+    ) {
+      throw new Error("Missing required franchise data");
+    }
+
     const studentData = {
       Name: name,
       email,
@@ -333,7 +356,7 @@ export async function fill_franchise({
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(email.split("@gmail.com")[0], {
+    page.drawText(email.split("@gmail.com")[0] as string, {
       x: adjustedUsername.x - 30,
       y: pdfHeight - 413,
       size: 17,
@@ -381,6 +404,7 @@ export async function fill_franchise({
     return pdfUrl;
   } catch (error) {
     logger.error(error);
+    throw new Error("Failed to generate and upload franchise PDF");
   }
 }
 

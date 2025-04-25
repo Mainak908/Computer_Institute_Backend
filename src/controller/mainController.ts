@@ -42,11 +42,13 @@ export async function createEnrollment(req: Request, res: Response) {
     po,
     ps,
     state,
+    createdAt,
   } = req.body;
 
   const dobUpdated = new Date(dob);
   const centerid = Number(req.centerId); //already number ache
-
+  const updatedCreatedAt =
+    createdAt == "" ? new Date(Date.now()) : new Date(createdAt);
   const data = await prisma.enrollment.create({
     data: {
       father,
@@ -82,6 +84,7 @@ export async function createEnrollment(req: Request, res: Response) {
         connect: { id: centerid },
       },
       imageLink: imageUrl,
+      createdAt: updatedCreatedAt,
     },
   });
 
@@ -213,6 +216,18 @@ export const generateIdSchema = z.object({
     .positive("Enrollment No must be Positive")
     .lte(999999, "Enrollment No is too large"),
 });
+
+export async function Delete_Enrollment(req: Request, res: Response) {
+  const { id } = req.body;
+
+  await prisma.enrollment.delete({
+    where: {
+      id,
+    },
+  });
+
+  res.json({ success: true });
+}
 
 export async function generateId(req: Request, res: Response) {
   const isvalidated = generateIdSchema.safeParse(req.body);

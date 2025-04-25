@@ -36,6 +36,7 @@ import {
   All_Center,
   Fetch_Coordinator,
   updateEnquiry,
+  Delete_Enrollment,
 } from "../controller/mainController.js";
 import { ErrorHandler } from "../errhandling.js";
 import {
@@ -109,8 +110,12 @@ router.route("/Certi_fetch").post(ErrorHandler(Certi_fetch));
 router.route("/noticefetch").get(ErrorHandler(noticefetch));
 
 //admin route
-
-router.route("/generate_franchise").post(ErrorHandler(generate_franchise));
+router
+  .route("/Delete_Enrollment")
+  .delete(adminAuthCheckFn, ErrorHandler(Delete_Enrollment));
+router
+  .route("/generate_franchise")
+  .post(adminAuthCheckFn, ErrorHandler(generate_franchise));
 router
   .route("/FetchAllEnquiry")
   .get(adminAuthCheckFn, ErrorHandler(FetchAllEnquiry));
