@@ -132,7 +132,7 @@ export async function createCenter(req: Request, res: Response) {
     return;
   }
 
-  const center = await prisma.center.create({
+  await prisma.center.create({
     data: {
       Centername,
       admin: {

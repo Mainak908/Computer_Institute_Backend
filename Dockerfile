@@ -12,9 +12,9 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
-# Build the TypeScript application
-RUN npm run build
+
 RUN npx prisma generate
+RUN npm run build
 
 # Expose the application port (change if needed)
 EXPOSE 3001
