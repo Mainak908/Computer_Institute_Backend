@@ -728,6 +728,7 @@ export async function filladmit({
     const command = new PutObjectCommand(params);
     await s3.send(command);
     const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/admit/${n}-${sem}.pdf`;
+    console.log(pdfUrl);
     return pdfUrl;
 
     // fs.writeFileSync("filled_admit.pdf", pdfBytes);

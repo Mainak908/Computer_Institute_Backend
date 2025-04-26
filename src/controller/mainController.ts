@@ -163,6 +163,11 @@ export async function AllEnrollments(req: Request, res: Response) {
       marksheetLink: true,
       dob: true,
       name: true,
+      course: {
+        select: {
+          CName: true,
+        },
+      },
       createdAt: true,
       EnrollmentNo: true,
       status: true,
