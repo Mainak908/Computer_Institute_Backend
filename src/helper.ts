@@ -200,7 +200,7 @@ function getRandomDate(year: number) {
   const end = new Date(year, 2, 31); // December 31st of the given year
   const randomTime =
     start.getTime() + Math.random() * (end.getTime() - start.getTime());
-  return new Date(randomTime).toLocaleDateString();
+  return new Date(randomTime).toLocaleDateString("en-GB");
 }
 
 export async function fill_franchise({
@@ -380,7 +380,7 @@ export async function fill_franchise({
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(new Date(createdAt).toLocaleDateString(), {
+    page.drawText(new Date(createdAt).toLocaleDateString("en-GB"), {
       x: 323,
       y: pdfHeight - 462,
       size: 17,
@@ -543,7 +543,7 @@ export async function fillCertificate({
 
     const issueDate =
       year == new Date(Date.now()).getFullYear().toString()
-        ? new Date(Date.now()).toLocaleDateString()
+        ? new Date(Date.now()).toLocaleDateString("en-GB")
         : getRandomDate(parseInt(year));
 
     page.drawText(issueDate, {
@@ -1035,7 +1035,7 @@ export async function fillMarksheet(data: MarksheetData) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(new Date(data.enrollment.dob).toLocaleDateString(), {
+    page.drawText(new Date(data.enrollment.dob).toLocaleDateString("en-GB"), {
       x: 470,
       y: pdfHeight - 320,
       size: 12,
@@ -1184,7 +1184,7 @@ export async function fillMarksheet(data: MarksheetData) {
 
     const issueDate =
       data.year == new Date(Date.now()).getFullYear().toString()
-        ? new Date(Date.now()).toLocaleDateString()
+        ? new Date(Date.now()).toLocaleDateString("en-GB")
         : getRandomDate(parseInt(data.year));
 
     page.drawText(issueDate, {

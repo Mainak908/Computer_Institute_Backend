@@ -73,6 +73,10 @@ router
 
 //center route
 router
+  .route("/Delete_Enrollment")
+  .delete(centerAuthCheckFn, ErrorHandler(Delete_Enrollment));
+
+router
   .route("/exmformfillupDatafetch")
   .post(centerAuthCheckFn, ErrorHandler(exmformfillupDatafetch));
 router
@@ -110,9 +114,7 @@ router.route("/Certi_fetch").post(ErrorHandler(Certi_fetch));
 router.route("/noticefetch").get(ErrorHandler(noticefetch));
 
 //admin route
-router
-  .route("/Delete_Enrollment")
-  .delete(adminAuthCheckFn, ErrorHandler(Delete_Enrollment));
+
 router
   .route("/generate_franchise")
   .post(adminAuthCheckFn, ErrorHandler(generate_franchise));
