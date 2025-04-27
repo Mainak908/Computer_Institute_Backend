@@ -166,6 +166,7 @@ export async function AllEnrollments(req: Request, res: Response) {
       course: {
         select: {
           CName: true,
+          Duration: true,
         },
       },
       createdAt: true,
@@ -501,6 +502,7 @@ export async function exmformsfetch(req: Request, res: Response) {
           course: {
             select: {
               CName: true,
+              Duration: true,
             },
           },
         },
@@ -691,6 +693,8 @@ export async function amountFetch(req: Request, res: Response) {
       course: {
         select: {
           price: true,
+          CName: true,
+          Duration: true,
         },
       },
     },
