@@ -37,6 +37,7 @@ import {
   Fetch_Coordinator,
   updateEnquiry,
   Delete_Enrollment,
+  deleteEnquiry,
 } from "../controller/mainController.js";
 import { ErrorHandler } from "../errhandling.js";
 import {
@@ -168,5 +169,8 @@ router.route("/subjectAdd").post(adminAuthCheckFn, ErrorHandler(subjectAdd));
 router
   .route("/updateEnquiry/:id")
   .post(adminAuthCheckFn, ErrorHandler(updateEnquiry));
+router
+  .route("/deleteEnquiry")
+  .delete(adminAuthCheckFn, ErrorHandler(deleteEnquiry));
 
 export default router;

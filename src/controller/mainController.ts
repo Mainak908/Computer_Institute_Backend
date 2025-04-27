@@ -182,6 +182,17 @@ export async function AllEnrollments(req: Request, res: Response) {
   res.json({ enrollments, total });
 }
 
+export async function deleteEnquiry(req: Request, res: Response) {
+  const { id } = req.body;
+
+  await prisma.enquiry.delete({
+    where: {
+      id,
+    },
+  });
+
+  res.json({ success: true });
+}
 export async function generateCertificate(req: Request, res: Response) {
   const link = await fillCertificate(req.body.data);
   if (link == undefined) return;
