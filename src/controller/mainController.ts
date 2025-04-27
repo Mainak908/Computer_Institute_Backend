@@ -440,12 +440,21 @@ export async function exmmarksDisApprove(req: Request, res: Response) {
   res.json({ success: true });
 }
 export async function exmmarksentry(req: Request, res: Response) {
-  const { EnrollmentNo, marks, remarks, grade, percentage, totalMarks, year } =
-    req.body;
+  const {
+    EnrollmentNo,
+    marks,
+    remarks,
+    grade,
+    percentage,
+    totalMarks,
+    year,
+    dop,
+  } = req.body;
   const p = parseFloat(percentage);
   const tm = parseFloat(totalMarks);
-
-  const data = await prisma.marks.create({
+  const updateddop = new Date(dop);
+  console.log(updateddop);
+  await prisma.marks.create({
     data: {
       EnrollmentNo: parseInt(EnrollmentNo),
       marks,
@@ -454,6 +463,7 @@ export async function exmmarksentry(req: Request, res: Response) {
       percentage: p,
       totalMarks: tm,
       year,
+      createdAt: updateddop,
     },
   });
 

@@ -95,6 +95,7 @@ export type MarksheetData = {
   EnrollmentNo: number;
   remarks: string;
   totalMarks: number;
+  createdAt: string;
 };
 
 interface FranchiseData {
@@ -412,6 +413,7 @@ export async function fillCertificate({
   grade,
   totalMarks,
   year,
+  createdAt,
   enrollment: {
     name,
     CertificateNo,
@@ -541,10 +543,7 @@ export async function fillCertificate({
       color: rgb(0, 0, 0),
     });
 
-    const issueDate =
-      year == new Date(Date.now()).getFullYear().toString()
-        ? new Date(Date.now()).toLocaleDateString("en-GB")
-        : getRandomDate(parseInt(year));
+    const issueDate = new Date(createdAt).toLocaleDateString("en-GB");
 
     page.drawText(issueDate, {
       x: 300,
@@ -1182,10 +1181,7 @@ export async function fillMarksheet(data: MarksheetData) {
       color: rgb(0, 0, 0),
     });
 
-    const issueDate =
-      data.year == new Date(Date.now()).getFullYear().toString()
-        ? new Date(Date.now()).toLocaleDateString("en-GB")
-        : getRandomDate(parseInt(data.year));
+    const issueDate = new Date(data.createdAt).toLocaleDateString("en-GB");
 
     page.drawText(issueDate, {
       x: 150,
