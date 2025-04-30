@@ -38,6 +38,8 @@ import {
   updateEnquiry,
   Delete_Enrollment,
   deleteEnquiry,
+  fetchAllCourse,
+  updateCourse,
 } from "../controller/mainController.js";
 import { ErrorHandler } from "../errhandling.js";
 import {
@@ -68,9 +70,6 @@ router
   .route("/createCenter")
   .post(verifyInternalApiKey, ErrorHandler(createCenter));
 router.route("/signupRoute").post(verifyInternalApiKey, signupFunc);
-router
-  .route("/createCourse")
-  .post(verifyInternalApiKey, ErrorHandler(createCourse));
 
 //center route
 router
@@ -113,9 +112,14 @@ router.route("/ResetPassword").post(otpLimiter, ErrorHandler(ResetPassword));
 router.route("/SendResetLink").post(otpLimiter, ErrorHandler(SendResetLink));
 router.route("/Certi_fetch").post(ErrorHandler(Certi_fetch));
 router.route("/noticefetch").get(ErrorHandler(noticefetch));
+router.route("/fetchAllCourse").get(ErrorHandler(fetchAllCourse));
 
 //admin route
+router.route("/updateCourse").put(adminAuthCheckFn, ErrorHandler(updateCourse));
 
+router
+  .route("/createCourse")
+  .post(adminAuthCheckFn, ErrorHandler(createCourse));
 router
   .route("/generate_franchise")
   .post(adminAuthCheckFn, ErrorHandler(generate_franchise));

@@ -364,15 +364,48 @@ export async function exmformfillupDatafetch(req: Request, res: Response) {
 }
 
 export async function createCourse(req: Request, res: Response) {
-  const { Duration, CName, price } = req.body;
+  const {
+    form: { courseName, duration, price },
+  } = req.body;
 
   await prisma.course.create({
     data: {
-      Duration,
-      CName,
-      price,
+      Duration: parseInt(duration),
+      CName: courseName,
+      price: parseInt(price),
     },
   });
+  await redisClient.del("allcourses");
+  res.json({ success: true });
+}
+
+export async function fetchAllCourse(req: Request, res: Response) {
+  const rawCourses = await redisClient.get("allcourses");
+
+  if (rawCourses) {
+    res.json(JSON.parse(rawCourses));
+    return;
+  }
+
+  const courses = await prisma.course.findMany({});
+  await redisClient.set("allcourses", JSON.stringify(courses));
+
+  res.json(courses);
+}
+export async function updateCourse(req: Request, res: Response) {
+  const { id, CName, price, Duration } = req.body;
+
+  await prisma.course.update({
+    where: {
+      id,
+    },
+    data: {
+      Duration: parseInt(Duration),
+      CName,
+      price: parseInt(price),
+    },
+  });
+  await redisClient.del("allcourses");
 
   res.json({ success: true });
 }
@@ -1112,7 +1145,7 @@ export const updateEnquiry = async (req: Request, res: Response) => {
     },
   });
 
-  res.status(200).json({ message: "Update successful", updated });
+  res.status(200).json({ success: true, updated });
 };
 
 export const updateMarksheet = async (req: Request, res: Response) => {
