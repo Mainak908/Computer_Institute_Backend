@@ -40,6 +40,7 @@ import {
   deleteEnquiry,
   fetchAllCourse,
   updateCourse,
+  updateEnrollment,
 } from "../controller/mainController.js";
 import { ErrorHandler } from "../errhandling.js";
 import {
@@ -115,6 +116,10 @@ router.route("/noticefetch").get(ErrorHandler(noticefetch));
 router.route("/fetchAllCourse").get(ErrorHandler(fetchAllCourse));
 
 //admin route
+
+router
+  .route("/updateEnrollment")
+  .put(adminAuthCheckFn, ErrorHandler(updateEnrollment));
 router.route("/updateCourse").put(adminAuthCheckFn, ErrorHandler(updateCourse));
 
 router

@@ -108,7 +108,23 @@ export async function ActivateEnrollment(req: Request, res: Response) {
 
   res.json({ success: true });
 }
+export async function updateEnrollment(req: Request, res: Response) {
+  const { id, name, dob, father, address } = req.body;
+  console.log(id, name, dob, father, address);
+  const data = await prisma.enrollment.update({
+    where: {
+      id: Number(id),
+    },
+    data: {
+      name,
+      dob: new Date(dob),
+      father,
+      address,
+    },
+  });
 
+  res.json({ success: true, data });
+}
 export async function deActivateEnrollment(req: Request, res: Response) {
   const { id } = req.body;
   const val = await prisma.enrollment.update({
@@ -163,6 +179,7 @@ export async function AllEnrollments(req: Request, res: Response) {
       marksheetLink: true,
       dob: true,
       name: true,
+      father: true,
       course: {
         select: {
           CName: true,
@@ -172,6 +189,7 @@ export async function AllEnrollments(req: Request, res: Response) {
       createdAt: true,
       EnrollmentNo: true,
       status: true,
+      address: true,
       centerid: true,
       id: true,
       activated: true, // Ensure activated field is included
