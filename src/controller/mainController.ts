@@ -1,14 +1,7 @@
 import Bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import { prisma } from "../client.js";
-import {
-  filladmit,
-  fillCertificate,
-  fillId,
-  fillMarksheet,
-  generateSecurePassword,
-  MarksheetData,
-} from "../helper.js";
+import { generateSecurePassword, MarksheetData } from "../helper.js";
 import {
   sendPasswordResetEmail,
   sendTemporaryPasswordEmail,
@@ -18,6 +11,10 @@ import bcrypt from "bcryptjs";
 import { redisClient } from "../index.js";
 import logger from "../logger.js";
 import { z } from "zod";
+import { fillId } from "../Generetor/id.js";
+import { filladmit } from "../Generetor/admit.js";
+import { fillCertificate } from "../Generetor/certificate.js";
+import { fillMarksheet } from "../Generetor/marksheet.js";
 
 export async function createEnrollment(req: Request, res: Response) {
   const {
