@@ -64,9 +64,10 @@ model User {
   Center           Center?
   resetToken       String?
   resetTokenExpiry DateTime?
-
-  enquiry   Enquiry? @relation(fields: [enquiryid], references: [id])
-  enquiryid Int?     @unique
+  TwoFaEnabled     Boolean   @default(false)
+  TwoFaSecret      String?
+  enquiry          Enquiry?  @relation(fields: [enquiryid], references: [id])
+  enquiryid        Int?      @unique
 }
 
 model Center {

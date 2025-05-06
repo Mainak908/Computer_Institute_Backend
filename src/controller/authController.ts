@@ -9,6 +9,8 @@ import {
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import logger from "../logger.js";
+import { authenticator } from "otplib";
+import qrcode from "qrcode";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -37,7 +39,6 @@ export async function loginFunc(req: Request, res: Response) {
 
     const { email, password } = isvalidated.data;
 
-    // Find the user
     const user = await prisma.user.findFirst({
       where: {
         email,
@@ -55,7 +56,10 @@ export async function loginFunc(req: Request, res: Response) {
       res.status(200).json({ message: "Invalid credentials" });
       return;
     }
-
+    if (user.TwoFaEnabled) {
+      res.status(200).json({ message: "enabled" });
+      return;
+    }
     Cookiehelper(res, user);
   } catch (error) {
     res.status(500).json({ message: "Login failed" });
@@ -172,4 +176,88 @@ export async function studentLogin(req: Request, res: Response) {
     .cookie("accessToken", token, accessTokenCookieOptions)
     .status(200)
     .json({ success: true, data });
+}
+
+export async function generateSecret(req: Request, res: Response) {
+  const secret = authenticator.generateSecret();
+
+  const email = req.email as string;
+
+  const otpauth = authenticator.keyuri(email, "MNYCTC", secret);
+
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      TwoFaSecret: secret,
+    },
+  });
+
+  const imageUrl = await qrcode.toDataURL(otpauth); //base64-encoded data URL type = base64
+  res.json(imageUrl);
+}
+
+export async function otpVerify(req: Request, res: Response) {
+  const { otp } = req.body;
+  const email = req.email;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!user || !user.TwoFaSecret) {
+    res.json({ success: false });
+    return;
+  }
+
+  const isValid = authenticator.verify({
+    secret: user.TwoFaSecret,
+    token: otp,
+  });
+
+  if (!isValid) {
+    res.json({ success: isValid });
+    return;
+  }
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      TwoFaEnabled: true,
+    },
+  });
+
+  res.json({ success: isValid });
+}
+
+export async function otpInput(req: Request, res: Response) {
+  const { otp, email } = req.body;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!user || !user.TwoFaSecret) {
+    res.json({ success: false });
+    return;
+  }
+
+  const isValid = authenticator.verify({
+    secret: user.TwoFaSecret,
+    token: otp,
+  });
+
+  if (isValid) {
+    Cookiehelper(res, user);
+    return;
+  }
+
+  res.json({ message: "failed" });
 }

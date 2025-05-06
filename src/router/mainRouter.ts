@@ -55,6 +55,9 @@ import {
   logoutfunc,
   signupFunc,
   studentLogin,
+  generateSecret,
+  otpVerify,
+  otpInput,
 } from "../controller/authController.js";
 import { generate_franchise } from "../controller/generetor.js";
 
@@ -73,6 +76,14 @@ router
 router.route("/signupRoute").post(verifyInternalApiKey, signupFunc);
 
 //center route
+
+router.route("/otpInput").post(ErrorHandler(otpInput));
+
+router.route("/otpVerify").post(centerAuthCheckFn, ErrorHandler(otpVerify));
+
+router
+  .route("/generateSecret")
+  .get(centerAuthCheckFn, ErrorHandler(generateSecret));
 router
   .route("/Delete_Enrollment")
   .delete(centerAuthCheckFn, ErrorHandler(Delete_Enrollment));

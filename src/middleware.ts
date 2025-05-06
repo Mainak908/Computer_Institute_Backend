@@ -61,6 +61,7 @@ export const centerAuthCheckFn = async (
     ) as iuserWithoutPassword;
 
     req.Role = user.role;
+    req.email = user.email;
 
     if (user.role === "CENTER") {
       const center = await prisma.center.findFirst({

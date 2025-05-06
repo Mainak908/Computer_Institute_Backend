@@ -16,6 +16,30 @@ import logger from "./logger.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const algorithm = "aes-256-gcm";
+const key = process.env.TWOFA_ENCRYPTION_KEY!; // 32 bytes
+const iv = crypto.randomBytes(16);
+
+export function encryptSecret(secret: string) {
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  let encrypted = cipher.update(secret, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  const tag = cipher.getAuthTag();
+  return { encrypted, iv: iv.toString("hex"), tag: tag.toString("hex") };
+}
+
+export function decryptSecret(encrypted: string, iv: string, tag: string) {
+  const decipher = crypto.createDecipheriv(
+    algorithm,
+    key,
+    Buffer.from(iv, "hex")
+  );
+  decipher.setAuthTag(Buffer.from(tag, "hex"));
+  let decrypted = decipher.update(encrypted, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
+
 export interface dtype {
   name: string;
   center: {

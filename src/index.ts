@@ -5,7 +5,6 @@ import express, { Request, Response } from "express";
 import router from "./router/mainRouter.js";
 import rateLimit from "express-rate-limit";
 import {
-  HeadObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
@@ -16,6 +15,7 @@ import { prisma } from "./client.js";
 import helmet from "helmet";
 import logger from "./logger.js";
 import { Resend } from "resend";
+import { authenticator } from "otplib";
 
 export const resend = new Resend(process.env.RESEND_KEY);
 

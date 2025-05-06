@@ -5,5 +5,6 @@ declare module "express" {
     Role?: string;
     centerId?: number;
     userId?: number;
+    email?: string;
   }
 }
