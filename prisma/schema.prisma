@@ -71,18 +71,16 @@ model User {
 }
 
 model Center {
-  id         Int          @id @default(autoincrement())
+  code       Int          @id @unique @default(autoincrement())
   Centername String
   Student    Enrollment[]
   admin      User         @relation(fields: [adminid], references: [id], onDelete: Cascade)
   adminid    Int          @unique
   address    String
-  code       Int          @unique @default(autoincrement())
 }
 
 model Enrollment {
-  id               Int         @id @default(autoincrement())
-  EnrollmentNo     Int         @unique @default(autoincrement())
+  EnrollmentNo     Int         @id @unique @default(autoincrement())
   IdCardNo         Int         @unique @default(autoincrement())
   idCardLink       String      @default("notavl")
   admitLink        String      @default("notavl")
@@ -116,7 +114,7 @@ model Enrollment {
   amount           Amount?
   course           Course      @relation(fields: [courseId], references: [id])
   courseId         Int
-  center           Center      @relation(fields: [centerid], references: [id], onDelete: Cascade)
+  center           Center      @relation(fields: [centerid], references: [code], onDelete: Cascade)
   centerid         Int
   createdAt        DateTime    @default(now())
   status           Json
@@ -160,11 +158,6 @@ model ExamForm {
   createdAt      DateTime   @default(now())
   ExamCenterCode String
   ATI_CODE       String
-  practExmdate   String
-  theoryExamdate String
-  practExmtime   String
-  theoryExmtime  String
-  sem            String
 }
 
 model Marks {
@@ -179,7 +172,6 @@ model Marks {
   verified     Boolean    @default(false)
   createdAt    DateTime   @default(now())
   year         String
-  serialNo     Int        @unique @default(autoincrement())
 }
 
 model Enquiry {

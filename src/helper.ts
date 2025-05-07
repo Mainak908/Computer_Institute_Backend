@@ -63,6 +63,7 @@ export type DataItem = {
   createdAt: string;
   ExamCenterCode: string;
   ATI_CODE: string;
+
   practExmdate: string;
   theoryExamdate: string;
   practExmtime: string;
@@ -79,6 +80,7 @@ export type DataItem = {
       Centername: string;
       code: number;
     };
+    centerid: number;
     father: string;
     IdCardNo: string;
     amount: {

@@ -78,7 +78,7 @@ export async function createEnrollment(req: Request, res: Response) {
       },
       eduqualification,
       center: {
-        connect: { id: centerid },
+        connect: { code: centerid },
       },
       imageLink: imageUrl,
       createdAt: updatedCreatedAt,
@@ -89,10 +89,11 @@ export async function createEnrollment(req: Request, res: Response) {
 }
 
 export async function ActivateEnrollment(req: Request, res: Response) {
-  const { id } = req.body;
+  //check
+  const { EnrollmentNo } = req.body;
   await prisma.enrollment.update({
     where: {
-      id,
+      EnrollmentNo,
     },
     data: {
       activated: true,
@@ -106,11 +107,12 @@ export async function ActivateEnrollment(req: Request, res: Response) {
   res.json({ success: true });
 }
 export async function updateEnrollment(req: Request, res: Response) {
-  const { id, name, dob, father, address } = req.body;
-  console.log(id, name, dob, father, address);
+  //check
+  const { EnrollmentNo, name, dob, father, address } = req.body;
+
   const data = await prisma.enrollment.update({
     where: {
-      id: Number(id),
+      EnrollmentNo: Number(EnrollmentNo),
     },
     data: {
       name,
@@ -123,10 +125,11 @@ export async function updateEnrollment(req: Request, res: Response) {
   res.json({ success: true, data });
 }
 export async function deActivateEnrollment(req: Request, res: Response) {
-  const { id } = req.body;
-  const val = await prisma.enrollment.update({
+  //check
+  const { EnrollmentNo } = req.body;
+  await prisma.enrollment.update({
     where: {
-      id,
+      EnrollmentNo,
     },
     data: {
       activated: false,
@@ -137,10 +140,10 @@ export async function deActivateEnrollment(req: Request, res: Response) {
 }
 
 export async function createCenter(req: Request, res: Response) {
-  const { Centername, adminId, address, code } = req.body;
+  const { Centername, adminId, address } = req.body;
 
   // Validate input
-  if (!Centername || !adminId || !address || !code) {
+  if (!Centername || !adminId || !address) {
     res.status(400).json({ error: "All fields are required" });
     return;
   }
@@ -152,7 +155,6 @@ export async function createCenter(req: Request, res: Response) {
         connect: { id: parseInt(adminId) }, // Ensure adminId is a number
       },
       address,
-      code: parseInt(code),
     },
   });
 
@@ -160,6 +162,7 @@ export async function createCenter(req: Request, res: Response) {
 }
 
 export async function AllEnrollments(req: Request, res: Response) {
+  //check
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const skip = (page - 1) * limit;
@@ -188,7 +191,7 @@ export async function AllEnrollments(req: Request, res: Response) {
       status: true,
       address: true,
       centerid: true,
-      id: true,
+
       activated: true, // Ensure activated field is included
     },
   });
@@ -250,11 +253,11 @@ export const generateIdSchema = z.object({
 });
 
 export async function Delete_Enrollment(req: Request, res: Response) {
-  const { id } = req.body;
+  const { EnrollmentNo } = req.body;
 
   await prisma.enrollment.delete({
     where: {
-      id,
+      EnrollmentNo,
     },
   });
 
@@ -513,7 +516,7 @@ export async function exmmarksentry(req: Request, res: Response) {
   const p = parseFloat(percentage);
   const tm = parseFloat(totalMarks);
   const updateddop = new Date(dop);
-  console.log(updateddop);
+
   await prisma.marks.create({
     data: {
       EnrollmentNo: parseInt(EnrollmentNo),
@@ -545,12 +548,7 @@ export async function exmformsfetch(req: Request, res: Response) {
           address: true,
           father: true,
           centerid: true,
-          center: {
-            select: {
-              Centername: true,
-              code: true,
-            },
-          },
+
           status: true,
           IdCardNo: true,
           amount: {
@@ -572,7 +570,7 @@ export async function exmformsfetch(req: Request, res: Response) {
     },
   });
 
-  res.json({ success: true, data });
+  res.json(data);
 }
 
 export async function marksheetfetch(req: Request, res: Response) {
@@ -598,7 +596,6 @@ export async function marksheetfetch(req: Request, res: Response) {
               Centername: true,
               code: true,
               address: true,
-              id: true,
             },
           },
         },
@@ -695,17 +692,7 @@ export async function FetchAllEnquiry(req: Request, res: Response) {
 }
 
 export async function examFormFillup(req: Request, res: Response) {
-  const {
-    EnrollmentNo,
-    ATI_CODE,
-    ExamCenterCode,
-    lastpaymentR,
-    ped,
-    ted,
-    pet,
-    tet,
-    SemNo,
-  } = req.body;
+  const { EnrollmentNo, ATI_CODE, ExamCenterCode, lastpaymentR } = req.body;
 
   await prisma.$transaction([
     prisma.amount.update({
@@ -721,11 +708,6 @@ export async function examFormFillup(req: Request, res: Response) {
         EnrollmentNo: parseInt(EnrollmentNo),
         ATI_CODE,
         ExamCenterCode,
-        practExmdate: ped,
-        theoryExamdate: ted,
-        practExmtime: pet,
-        theoryExmtime: tet,
-        sem: SemNo,
       },
     }),
   ]);
@@ -742,7 +724,7 @@ export async function amountFetch(req: Request, res: Response) {
     select: {
       name: true,
       EnrollmentNo: true,
-      id: true,
+
       amount: {
         select: {
           amountRemain: true,
@@ -971,7 +953,6 @@ export async function ResetPassword(req: Request, res: Response) {
 
 export async function subjectAdd(req: Request, res: Response) {
   const { c, cid } = req.body;
-  //FIXME incase of update and zod validation
 
   await prisma.course.update({
     where: {
@@ -1077,7 +1058,7 @@ export async function All_Center(req: Request, res: Response) {
     where: {},
     select: {
       Centername: true,
-      id: true,
+      code: true,
       admin: {
         select: {
           id: true,

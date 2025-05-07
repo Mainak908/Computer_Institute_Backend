@@ -92,7 +92,7 @@ export async function fillMarksheet(data: MarksheetData) {
       color: rgb(0, 0, 0),
     });
     page.drawText(
-      `${data.enrollment.course.Duration.toString().toUpperCase()} MONTH`,
+      `${data.enrollment.course.Duration.toString().toUpperCase()} MONTHS`,
       {
         x: 500,
         y: pdfHeight - 269,
@@ -123,7 +123,7 @@ export async function fillMarksheet(data: MarksheetData) {
       yp -= 12 + 5; // Adjust line spacing
     });
 
-    page.drawText(data.enrollment.center.code.toString(), {
+    page.drawText(`YCTC${paddedCode}`, {
       x: 480,
       y: pdfHeight - 295,
       size: 12,

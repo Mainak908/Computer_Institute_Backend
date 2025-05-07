@@ -13,17 +13,18 @@ export async function filladmit({
     father,
     course: { CName },
     imageLink,
-    center: { code },
+    centerid,
   },
   ATI_CODE,
   ExamCenterCode,
-  theoryExamdate,
-  practExmdate,
-  practExmtime,
-  theoryExmtime,
-  sem,
 }: DataItem) {
   try {
+    if (!EnrollmentNo || !centerid) {
+      const error = new Error("Invalid student object: missing 'code'");
+      (error as any).statusCode = 400; // Optional custom status
+      throw error;
+    }
+
     const existingPdfBytes = fs.readFileSync("files/admit.pdf");
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
@@ -43,10 +44,10 @@ export async function filladmit({
     const image2 = await pdfDoc.embedPng(imageBytes2);
 
     const rem = 6 - countDigits(EnrollmentNo);
-    const remcode = 6 - countDigits(code);
+    const remcode = 6 - countDigits(centerid);
 
     const paddedNumber = EnrollmentNo.toString().padStart(rem, "0");
-    const paddedCode = code.toString().padStart(remcode, "0");
+    const paddedCode = centerid.toString().padStart(remcode, "0");
 
     page.drawText(`YCTC${paddedCode}/${paddedNumber}`, {
       x: 165,
@@ -90,48 +91,6 @@ export async function filladmit({
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(theoryExamdate, {
-      x: 83,
-      y: pdfHeight - 272,
-      size: 8,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(theoryExmtime, {
-      x: 145,
-      y: pdfHeight - 272,
-      size: 8,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(sem, {
-      x: 208,
-      y: pdfHeight - 272,
-      size: 8,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(practExmdate, {
-      x: 83,
-      y: pdfHeight - 289,
-      size: 8,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(practExmtime, {
-      x: 145,
-      y: pdfHeight - 289,
-      size: 8,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(sem, {
-      x: 208,
-      y: pdfHeight - 289,
-      size: 8,
-      color: rgb(0, 0, 0),
-    });
-
     page.drawImage(image, {
       x: 391, // Adjust X position
       y: pdfHeight - 220, // Adjust Y position (PDF coordinates start from bottom-left)
@@ -150,15 +109,15 @@ export async function filladmit({
 
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `admit/${n}-${sem}.pdf`,
+      Key: `admit/${n}-${EnrollmentNo}.pdf`,
       Body: pdfBytes,
       ContentType: "application/pdf",
     };
 
     const command = new PutObjectCommand(params);
     await s3.send(command);
-    const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/admit/${n}-${sem}.pdf`;
-    console.log(pdfUrl);
+    const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/admit/${n}-${EnrollmentNo}.pdf`;
+
     return pdfUrl;
 
     // fs.writeFileSync("filled_admit.pdf", pdfBytes);

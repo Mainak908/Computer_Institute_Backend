@@ -69,7 +69,7 @@ export const centerAuthCheckFn = async (
           adminid: user.id,
         },
         select: {
-          id: true,
+          code: true,
         },
       });
 
@@ -80,7 +80,7 @@ export const centerAuthCheckFn = async (
         return;
       }
 
-      req.centerId = center.id;
+      req.centerId = center.code;
       req.userId = user.id;
 
       return next();
