@@ -427,7 +427,7 @@ export async function fill_franchise({
   }
 }
 
-export function wrapText(
+function wrapText(
   text: string,
   maxWidth: number,
   font: PDFFont,

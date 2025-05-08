@@ -1,7 +1,7 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import axios from "axios";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { MarksheetData, countDigits, wrapText } from "../helper.js";
+import { MarksheetData, countDigits, wrappedLines } from "../helper.js";
 import { s3 } from "../index.js";
 import logger from "../logger.js";
 import QRCode from "qrcode";
@@ -103,24 +103,18 @@ export async function fillMarksheet(data: MarksheetData) {
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    const wrappedLines = wrapText({
-      text: data.enrollment.center.Centername,
-      font,
-      maxWidth: pdfWidth - 320,
-      fontSize: 14,
-    });
-
     let yPosition = pdfHeight - 410;
-    let yp = pdfHeight - 290;
 
-    wrappedLines.forEach((line) => {
-      page.drawText(line, {
-        x: 130,
-        y: yp,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
-      yp -= 12 + 5; // Adjust line spacing
+    wrappedLines({
+      text: data.enrollment.center.Centername,
+      x: 130,
+      y: pdfHeight - 290,
+      maxWidth: pdfWidth - 360,
+      font,
+      fontSize: 12,
+      page,
+      lineGap: 3,
+      color: rgb(0, 0, 0),
     });
 
     page.drawText(`YCTC${paddedCode}`, {
@@ -307,8 +301,9 @@ export async function fillMarksheet(data: MarksheetData) {
     const command = new PutObjectCommand(params);
     await s3.send(command);
     const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/marksheet/${n}-${data.totalMarks}.pdf`;
-    return pdfUrl;
     // fs.writeFileSync("filled_Marksheet.pdf", pdfBytes);
+
+    return pdfUrl;
   } catch (error) {
     logger.error(error);
   }
