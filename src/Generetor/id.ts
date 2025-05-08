@@ -5,7 +5,7 @@ import {
   makeCircularImage,
   adjustCenteredTextPosition,
   countDigits,
-  wrapText,
+  wrappedLines,
 } from "../helper.js";
 import { s3 } from "../index.js";
 import logger from "../logger.js";
@@ -85,34 +85,29 @@ export async function fillId({
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(`ADDRESS: ${address}`, {
+    wrappedLines({
+      text: `ADDRESS: ${address}`,
       x: 70,
       y: pdfHeight - 1260,
-      size: 50,
+      maxWidth: pdfWidth - 80,
+      font,
+      fontSize: 45,
+      page,
+      lineGap: 5,
       color: rgb(0, 0, 0),
     });
 
     // Define text wrapping parameters
-    const maxWidth = pdfWidth - 60; // Adjust as needed
-    const fontSize = 50;
-    const wrappedLines = wrapText({
+    wrappedLines({
       text: `CENTER: ${Centername}`,
-      maxWidth,
+      x: 70,
+      y: pdfHeight - 1380,
+      maxWidth: pdfWidth - 80,
       font,
-      fontSize,
-    });
-
-    // Draw wrapped text
-    let yPosition = pdfHeight - 1340;
-
-    wrappedLines.forEach((line) => {
-      page.drawText(line, {
-        x: 70,
-        y: yPosition,
-        size: fontSize,
-        color: rgb(0, 0, 0),
-      });
-      yPosition -= fontSize + 5; // Adjust line spacing
+      fontSize: 45,
+      page,
+      lineGap: 5,
+      color: rgb(0, 0, 0),
     });
 
     const Image = await pdfDoc.embedPng(imageBytes);
@@ -125,10 +120,15 @@ export async function fillId({
       height,
     });
 
-    page.drawText(address, {
+    wrappedLines({
+      text: address,
       x: 23,
-      y: pdfHeight - 1540,
-      size: 45,
+      y: pdfHeight - 1510,
+      maxWidth: pdfWidth - 300,
+      font,
+      fontSize: 40,
+      page,
+      lineGap: 5,
       color: rgb(1, 1, 1),
     });
 

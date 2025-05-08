@@ -1,7 +1,7 @@
 import { CookieOptions, Response } from "express";
 import jwt from "jsonwebtoken";
 import fs from "fs";
-import { PDFDocument, rgb, StandardFonts, PDFFont } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts, PDFFont, PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
 import sharp from "sharp";
 import axios from "axios";
@@ -427,38 +427,58 @@ export async function fill_franchise({
   }
 }
 
-export interface WrapTextParams {
-  text: string;
-  maxWidth: number;
-  font: PDFDocument["fonts"][0];
-  fontSize: number;
-}
+export function wrapText(
+  text: string,
+  maxWidth: number,
+  font: PDFFont,
+  fontSize: number
+): string[] {
+  if (!text.trim()) return [];
 
-export const wrapText = ({
-  text,
-  maxWidth,
-  font,
-  fontSize,
-}: WrapTextParams): string[] => {
-  if (!text.trim()) return []; // Handle empty or whitespace-only text
+  const words = text.trim().split(/\s+/); // Normalize spaces
+  const lines: string[] = [];
+  let currentLine = "";
 
-  const words = text.split(/\s+/); // Split on multiple spaces to avoid empty entries
-  let lines: string[] = [];
-  let currentLine = words[0] || ""; // Ensure it's a string
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = font.widthOfTextAtSize(testLine, fontSize);
 
-  for (let i = 1; i < words.length; i++) {
-    const word = words[i] ?? "";
-
-    const width = font.widthOfTextAtSize(`${currentLine} ${word}`, fontSize);
-
-    if (width < maxWidth) {
-      currentLine += ` ${word}`;
+    if (testWidth <= maxWidth) {
+      currentLine = testLine;
     } else {
-      lines.push(currentLine);
-      currentLine = word;
+      if (currentLine) lines.push(currentLine);
+      currentLine = word; // Start a new line
     }
   }
 
-  if (currentLine) lines.push(currentLine); // Push last line if not empty
+  if (currentLine) lines.push(currentLine);
   return lines;
-};
+}
+export function wrappedLines({
+  text,
+  x,
+  y,
+  maxWidth,
+  font,
+  fontSize,
+  page,
+  lineGap = 5,
+  color = rgb(0, 0, 0),
+}: {
+  text: string;
+  x: number;
+  y: number;
+  maxWidth: number;
+  font: PDFFont;
+  fontSize: number;
+  page: PDFPage;
+  lineGap?: number;
+  color?: ReturnType<typeof rgb>;
+}) {
+  const lines = wrapText(text, maxWidth, font, fontSize);
+
+  for (const line of lines) {
+    page.drawText(line, { x, y, size: fontSize, font, color });
+    y -= fontSize + lineGap;
+  }
+}
