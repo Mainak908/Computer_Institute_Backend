@@ -980,6 +980,7 @@ export async function noticefetch(req: Request, res: Response) {
     const cachedData = await redisClient.get(cacheKey);
 
     if (cachedData) {
+      console.log(cachedData);
       res.json(JSON.parse(cachedData));
       return;
     }
@@ -989,7 +990,7 @@ export async function noticefetch(req: Request, res: Response) {
       orderBy: { upto: "desc" },
     });
 
-    await redisClient.set(cacheKey, JSON.stringify(notices), "EX", 3600 * 24); // Cache for 1 hour
+    await redisClient.set(cacheKey, JSON.stringify(notices)); // Cache for 1 hour
     res.json(notices);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch notices" });
