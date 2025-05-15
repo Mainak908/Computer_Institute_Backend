@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  createCenter,
   AllEnrollments,
   deActivateEnrollment,
   ActivateEnrollment,
@@ -70,9 +69,7 @@ router.route("/logout").get(ErrorHandler(logoutfunc));
 router.route("/studentLogin").post(ErrorHandler(studentLogin));
 
 //internal route
-router
-  .route("/createCenter")
-  .post(verifyInternalApiKey, ErrorHandler(createCenter));
+
 router.route("/signupRoute").post(verifyInternalApiKey, signupFunc);
 
 //center route

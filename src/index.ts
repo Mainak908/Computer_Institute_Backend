@@ -15,7 +15,34 @@ import { prisma } from "./client.js";
 import helmet from "helmet";
 import logger from "./logger.js";
 import { Resend } from "resend";
-import { authenticator } from "otplib";
+import { pinoHttp } from "pino-http";
+import os from "os";
+
+const loggerHttp = pinoHttp({
+  customLogLevel: function (res, err) {
+    if (res.statusCode && res.statusCode >= 400 && res.statusCode < 500)
+      return "warn";
+    if (res.statusCode && res.statusCode >= 500) return "error";
+    return "info";
+  },
+  serializers: {
+    req(req) {
+      return {
+        method: req.method,
+        url: req.url,
+        origin: req.headers.origin,
+        hostname: os.hostname(),
+      };
+    },
+    res(res) {
+      return {
+        statusCode: res.statusCode,
+        responseTime: res.responseTime,
+        date: new Date().toUTCString(),
+      };
+    },
+  },
+});
 
 export const resend = new Resend(process.env.RESEND_KEY);
 
@@ -69,6 +96,8 @@ app.use(
   })
 );
 
+app.use(loggerHttp);
+
 app.get("/generate-presigned-url", async (req, res) => {
   try {
     const { fileName, category } = req.query;
@@ -87,7 +116,6 @@ app.get("/generate-presigned-url", async (req, res) => {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: Key,
       ContentType: fileType,
-      // ACL: "public-read",
     });
 
     const url = await getSignedUrl(s3, command, { expiresIn: 60 });
@@ -137,11 +165,6 @@ app.get("/health", (_, res) => {
   res.json({ status: "ok" });
 });
 
-app.post("/log", (req, res) => {
-  logger.info(req.body.message);
-  res.sendStatus(200);
-});
-
 app.use(router);
 
 app.use((_, res) => {
@@ -149,8 +172,7 @@ app.use((_, res) => {
 });
 
 app.use((err: any, _: Request, res: Response) => {
-  logger.error(err);
-  res.json({ error: "Internal Server Error" });
+  res.status(500).json({ error: "Internal Server Error" });
 });
 
 process.on("SIGINT", async () => {

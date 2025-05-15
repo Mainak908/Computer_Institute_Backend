@@ -5,6 +5,7 @@ import {
   accessTokenCookieOptions,
   Cookiehelper,
   formatDateForJS,
+  getNextId,
 } from "../helper.js";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
@@ -89,14 +90,16 @@ export async function signupFunc(req: Request, res: Response) {
 
     // Hash the password
     const hashedPassword = await Bcrypt.hash(password, 10);
-
-    // Save the user to the database
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-      },
+    await prisma.$transaction(async (tx) => {
+      const userId = await getNextId(tx, "UserId");
+      await prisma.user.create({
+        data: {
+          id: userId,
+          email,
+          password: hashedPassword,
+          name,
+        },
+      });
     });
 
     res.status(201).json({ message: "User registered successfully" });

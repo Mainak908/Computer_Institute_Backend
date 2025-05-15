@@ -55,8 +55,13 @@ enum Remark {
   FAIL
 }
 
+model Counter {
+  name  String @id
+  value Int
+}
+
 model User {
-  id               Int       @id @default(autoincrement())
+  id               Int       @id //autoinc
   email            String    @unique
   name             String
   role             Role      @default(CENTER)
@@ -68,10 +73,11 @@ model User {
   TwoFaSecret      String?
   enquiry          Enquiry?  @relation(fields: [enquiryid], references: [id])
   enquiryid        Int?      @unique
+  isdeleted        Boolean   @default(false)
 }
 
 model Center {
-  code       Int          @id @unique @default(autoincrement())
+  code       Int          @id @unique //autoinc
   Centername String
   Student    Enrollment[]
   admin      User         @relation(fields: [adminid], references: [id], onDelete: Cascade)
@@ -80,14 +86,15 @@ model Center {
 }
 
 model Enrollment {
-  EnrollmentNo     Int         @id @unique @default(autoincrement())
-  IdCardNo         Int         @unique @default(autoincrement())
+  isdeleted        Boolean     @default(false)
+  EnrollmentNo     Int         @id @unique //autoinc
+  IdCardNo         Int         @unique //autoinc
   idCardLink       String      @default("notavl")
   admitLink        String      @default("notavl")
   certificateLink  String      @default("notavl")
   marksheetLink    String      @default("notavl")
   imageLink        String
-  CertificateNo    Int?        @unique @default(autoincrement())
+  CertificateNo    Int?        @unique //autoinc
   name             String
   dob              DateTime
   father           String
@@ -175,7 +182,7 @@ model Marks {
 }
 
 model Enquiry {
-  id               Int         @id @default(autoincrement())
+  id               Int         @id //autoinc
   name             String
   email            String      @unique
   father           String
@@ -206,6 +213,7 @@ model Enquiry {
   createdAt        DateTime    @default(now())
   admin            User?
   Subscription     DateTime?
+  isdeleted        Boolean     @default(false)
 }
 
 model Notices {

@@ -99,7 +99,7 @@ export async function filladmit({
     });
 
     page.drawImage(image2, {
-      x: 277, // Adjust X position
+      x: 410, // Adjust X position
       y: pdfHeight - 325, // Adjust Y position (PDF coordinates start from bottom-left)
       width: 45,
       height: 30,

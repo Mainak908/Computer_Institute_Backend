@@ -1,7 +1,7 @@
 import Bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import { prisma } from "../client.js";
-import { generateSecurePassword, MarksheetData } from "../helper.js";
+import { generateSecurePassword, getNextId, MarksheetData } from "../helper.js";
 import {
   sendPasswordResetEmail,
   sendTemporaryPasswordEmail,
@@ -46,46 +46,56 @@ export async function createEnrollment(req: Request, res: Response) {
   const centerid = Number(req.centerId); //already number ache
   const updatedCreatedAt =
     createdAt == "" ? new Date(Date.now()) : new Date(createdAt);
-  const data = await prisma.enrollment.create({
-    data: {
-      father,
-      category,
-      nationality,
-      mobileNo,
-      idProof: idtype,
-      idProofNo,
-      mother,
-      pincode,
-      address,
-      dist,
-      pin: pincode,
-      po,
-      ps,
-      state,
-      vill,
-      status: {
-        id: 1,
-        val: "pending",
-      },
-      dob: dobUpdated,
-      name,
-      email,
-      sex,
-      course: {
-        connect: {
-          id: parseInt(courseid),
+
+  const result = await prisma.$transaction(async (tx) => {
+    const EnrollmentNo = await getNextId(tx, "EnrollmentNo");
+    const IdCardNo = await getNextId(tx, "IdCardNo");
+    const CertificateNo = await getNextId(tx, "CertificateNo");
+
+    return await tx.enrollment.create({
+      data: {
+        father,
+        EnrollmentNo,
+        IdCardNo,
+        CertificateNo,
+        category,
+        nationality,
+        mobileNo,
+        idProof: idtype,
+        idProofNo,
+        mother,
+        pincode,
+        address,
+        dist,
+        pin: pincode,
+        po,
+        ps,
+        state,
+        vill,
+        status: {
+          id: 1,
+          val: "pending",
         },
+        dob: dobUpdated,
+        name,
+        email,
+        sex,
+        course: {
+          connect: {
+            id: parseInt(courseid),
+          },
+        },
+        eduqualification,
+        center: {
+          connect: { code: centerid },
+        },
+        imageLink: imageUrl,
+        createdAt: updatedCreatedAt,
       },
-      eduqualification,
-      center: {
-        connect: { code: centerid },
-      },
-      imageLink: imageUrl,
-      createdAt: updatedCreatedAt,
-    },
+    });
   });
 
-  res.json({ success: true, EnrollmentNo: data.EnrollmentNo });
+  res.json({ success: true, EnrollmentNo: result.EnrollmentNo });
 }
 
 export async function ActivateEnrollment(req: Request, res: Response) {
@@ -139,28 +149,6 @@ export async function deActivateEnrollment(req: Request, res: Response) {
   res.json({ success: true });
 }
 
-export async function createCenter(req: Request, res: Response) {
-  const { Centername, adminId, address } = req.body;
-
-  // Validate input
-  if (!Centername || !adminId || !address) {
-    res.status(400).json({ error: "All fields are required" });
-    return;
-  }
-
-  await prisma.center.create({
-    data: {
-      Centername,
-      admin: {
-        connect: { id: parseInt(adminId) }, // Ensure adminId is a number
-      },
-      address,
-    },
-  });
-
-  res.json({ success: true });
-}
-
 export async function AllEnrollments(req: Request, res: Response) {
   //check
   const page = parseInt(req.query.page as string) || 1;
@@ -170,7 +158,10 @@ export async function AllEnrollments(req: Request, res: Response) {
   const enrollments = await prisma.enrollment.findMany({
     skip,
     take: limit,
-    where: req.Role === "CENTER" ? { centerid: Number(req.centerId) } : {},
+    where:
+      req.Role === "CENTER"
+        ? { centerid: Number(req.centerId), isdeleted: false }
+        : { isdeleted: false },
     select: {
       admitLink: true,
       certificateLink: true,
@@ -203,9 +194,12 @@ export async function AllEnrollments(req: Request, res: Response) {
 export async function deleteEnquiry(req: Request, res: Response) {
   const { id } = req.body;
 
-  await prisma.enquiry.delete({
+  await prisma.enquiry.update({
     where: {
       id,
+    },
+    data: {
+      isdeleted: true,
     },
   });
 
@@ -255,9 +249,12 @@ export const generateIdSchema = z.object({
 export async function Delete_Enrollment(req: Request, res: Response) {
   const { EnrollmentNo } = req.body;
 
-  await prisma.enrollment.delete({
+  await prisma.enrollment.update({
     where: {
       EnrollmentNo,
+    },
+    data: {
+      isdeleted: true,
     },
   });
 
@@ -651,41 +648,47 @@ export async function TakeEnquiry(req: Request, res: Response) {
   const ImageLink = Links.find((elem) => elem.catg === "profile")
     ?.url as string;
 
-  await prisma.enquiry.create({
-    data: {
-      coName,
-      vill,
-      po,
-      pin,
-      ps,
-      dist,
-      state,
-      email,
-      father,
-      dob: dobUpdated,
-      sex: sx,
-      category,
-      nationality: nt,
-      mobileNo,
-      AddressLine,
-      name,
-      eduqualification,
-      idProof,
-      idProofNo,
-      houseRoomNo,
-      squareFit,
-      tradeLicense,
-      bathroom: bathroomValue,
-      signatureLink,
-      ImageLink,
-    },
+  await prisma.$transaction(async (tx) => {
+    const id = await getNextId(tx, "EnquiryId");
+    await tx.enquiry.create({
+      data: {
+        id,
+        coName,
+        vill,
+        po,
+        pin,
+        ps,
+        dist,
+        state,
+        email,
+        father,
+        dob: dobUpdated,
+        sex: sx,
+        category,
+        nationality: nt,
+        mobileNo,
+        AddressLine,
+        name,
+        eduqualification,
+        idProof,
+        idProofNo,
+        houseRoomNo,
+        squareFit,
+        tradeLicense,
+        bathroom: bathroomValue,
+        signatureLink,
+        ImageLink,
+      },
+    });
   });
 
   res.json({ success: true });
 }
 export async function FetchAllEnquiry(req: Request, res: Response) {
   const data = await prisma.enquiry.findMany({
-    where: {},
+    where: {
+      isdeleted: false,
+    },
   });
 
   res.json({ data });
@@ -720,6 +723,7 @@ export async function amountFetch(req: Request, res: Response) {
   const data = await prisma.enrollment.findMany({
     where: {
       centerid: id,
+      isdeleted: false,
     },
     select: {
       name: true,
@@ -820,24 +824,35 @@ export async function VerifyEnquiry(req: Request, res: Response) {
       },
     });
 
-    if (!tempdata) return;
+    if (!tempdata) {
+      sendUpdate(0, "no data found");
+      res.end(); // End the SSE stream properly
+      return;
+    }
 
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        enquiryid: tempdata.id,
-      },
+    const result = await prisma.$transaction(async (tx) => {
+      const userId = await getNextId(tx, "UserId");
+      const centerCode = await getNextId(tx, "CenterCode");
+      const newUser = await tx.user.create({
+        data: {
+          email,
+          id: userId,
+          password: hashedPassword,
+          name,
+          enquiryid: tempdata.id,
+        },
+      });
+
+      await tx.center.create({
+        data: {
+          code: centerCode,
+          adminid: newUser.id,
+          address: tempdata!.AddressLine,
+          Centername: `${tempdata?.vill} MISSION NATIONAL YOUTH COMPUTER CENTER`,
+        },
+      });
     });
 
-    const data = await prisma.center.create({
-      data: {
-        adminid: newUser.id,
-        address: tempdata!.AddressLine,
-        Centername: `${tempdata?.vill} MISSION NATIONAL YOUTH COMPUTER CENTER`,
-      },
-    });
     sendUpdate(2, "center created");
 
     await prisma.enquiry.update({
@@ -980,7 +995,6 @@ export async function noticefetch(req: Request, res: Response) {
     const cachedData = await redisClient.get(cacheKey);
 
     if (cachedData) {
-      console.log(cachedData);
       res.json(JSON.parse(cachedData));
       return;
     }
@@ -1045,9 +1059,12 @@ export async function Certi_fetch(req: Request, res: Response) {
 export async function Delete_Admin(req: Request, res: Response) {
   const { id } = req.body;
 
-  await prisma.user.delete({
+  await prisma.user.update({
     where: {
       id,
+    },
+    data: {
+      isdeleted: true,
     },
   });
 

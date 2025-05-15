@@ -12,6 +12,7 @@ import { s3 } from "./index.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import logger from "./logger.js";
+import { Prisma } from "../generate/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -481,4 +482,22 @@ export function wrappedLines({
     page.drawText(line, { x, y, size: fontSize, font, color });
     y -= fontSize + lineGap;
   }
+}
+
+export async function getNextId(
+  tx: Prisma.TransactionClient,
+  name:
+    | "EnrollmentNo"
+    | "IdCardNo"
+    | "CertificateNo"
+    | "CenterCode"
+    | "UserId"
+    | "EnquiryId"
+): Promise<number> {
+  const counter = await tx.counter.update({
+    where: { name },
+    data: { value: { increment: 1 } },
+  });
+
+  return counter.value;
 }
