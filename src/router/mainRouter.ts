@@ -40,6 +40,7 @@ import {
   fetchAllCourse,
   updateCourse,
   updateEnrollment,
+  fetchAllCourseWithSub,
 } from "../controller/mainController.js";
 import { ErrorHandler } from "../errhandling.js";
 import {
@@ -125,6 +126,9 @@ router.route("/fetchAllCourse").get(ErrorHandler(fetchAllCourse));
 
 //admin route
 
+router
+  .route("/fetchAllCourseWithSub")
+  .get(adminAuthCheckFn, ErrorHandler(fetchAllCourseWithSub));
 router
   .route("/updateEnrollment")
   .put(adminAuthCheckFn, ErrorHandler(updateEnrollment));

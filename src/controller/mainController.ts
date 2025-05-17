@@ -988,7 +988,17 @@ export async function subjectAdd(req: Request, res: Response) {
 
   res.json({ success: true });
 }
+export const fetchAllCourseWithSub = async (req: Request, res: Response) => {
+  const data = await prisma.course.findMany({
+    where: {},
+    select: {
+      CName: true,
+      subjects: true,
+    },
+  });
 
+  res.json(data);
+};
 export async function noticefetch(req: Request, res: Response) {
   try {
     const cacheKey = "notices";
