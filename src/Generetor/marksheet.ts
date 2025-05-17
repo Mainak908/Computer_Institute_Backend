@@ -16,7 +16,7 @@ export async function fillMarksheet(data: MarksheetData) {
 
     const pdfHeight = page.getHeight();
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold); // Embed bold font
-
+    const NFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const response = await axios({
       url: data.enrollment.imageLink,
       responseType: "arraybuffer", // Download as buffer
@@ -85,10 +85,16 @@ export async function fillMarksheet(data: MarksheetData) {
       size: 12,
       color: rgb(0, 0, 0),
     });
-    page.drawText(data.enrollment.course.CName, {
+
+    wrappedLines({
+      text: data.enrollment.course.CName,
       x: 136,
-      y: pdfHeight - 269,
-      size: 12,
+      y: pdfHeight - 262,
+      maxWidth: pdfWidth - 380,
+      font: NFont,
+      fontSize: 12,
+      page,
+      lineGap: 2,
       color: rgb(0, 0, 0),
     });
     page.drawText(
@@ -103,13 +109,13 @@ export async function fillMarksheet(data: MarksheetData) {
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    let yPosition = pdfHeight - 410;
+    let yPosition = pdfHeight - 405;
 
     wrappedLines({
       text: data.enrollment.center.Centername,
       x: 130,
       y: pdfHeight - 290,
-      maxWidth: pdfWidth - 360,
+      maxWidth: pdfWidth - 355,
       font,
       fontSize: 12,
       page,
@@ -169,13 +175,18 @@ export async function fillMarksheet(data: MarksheetData) {
 
       sl++;
 
-      page.drawText(subject.subject, {
-        x: 60,
+      const lc = wrappedLines({
+        text: subject.subject,
+        x: 55,
         y: yPosition,
-        size: 13,
+        maxWidth: pdfWidth - 405,
         font: boldFont,
+        fontSize: 11,
+        page,
+        lineGap: 2,
         color: rgb(0, 0, 0),
       });
+
       page.drawText(subject.theoryFullMarks.toString(), {
         x: 290,
         y: yPosition,
@@ -211,8 +222,7 @@ export async function fillMarksheet(data: MarksheetData) {
         font: boldFont,
         color: rgb(0, 0, 0),
       });
-
-      yPosition -= 25; // Move to the next row
+      lc == 3 ? (yPosition -= 40) : (yPosition -= 25);
     });
 
     page.drawText(totalTheoryFullMarks.toString(), {

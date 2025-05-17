@@ -477,11 +477,15 @@ export function wrappedLines({
   color?: ReturnType<typeof rgb>;
 }) {
   const lines = wrapText(text, maxWidth, font, fontSize);
+  let lc = 0;
 
   for (const line of lines) {
     page.drawText(line, { x, y, size: fontSize, font, color });
     y -= fontSize + lineGap;
+    lc += 1;
   }
+
+  return lc;
 }
 
 export async function getNextId(

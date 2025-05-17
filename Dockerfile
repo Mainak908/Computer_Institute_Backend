@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 3001
 
 # Set the command to start the app
-CMD ["node", "dist/index.js"]
+CMD ["NODE_ENV=production", "node", "dist/index.js"]
