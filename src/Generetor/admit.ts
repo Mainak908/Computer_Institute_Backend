@@ -1,7 +1,7 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import axios from "axios";
-import { PDFDocument, rgb } from "pdf-lib";
-import { DataItem, countDigits } from "../helper.js";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { DataItem, countDigits, wrappedLines } from "../helper.js";
 import { s3 } from "../index.js";
 import logger from "../logger.js";
 import fs from "fs";
@@ -50,44 +50,53 @@ export async function filladmit({
     const paddedCode = centerid.toString().padStart(remcode, "0");
 
     page.drawText(`YCTC${paddedCode}/${paddedNumber}`, {
-      x: 165,
+      x: 160,
       y: pdfHeight - 156,
-      size: 13,
+      size: 11,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(name, {
-      x: 165,
+      x: 160,
       y: pdfHeight - 173,
-      size: 13,
+      size: 11,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(father, {
-      x: 165,
+      x: 160,
       y: pdfHeight - 190,
-      size: 13,
+      size: 11,
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(CName, {
-      x: 165,
-      y: pdfHeight - 207,
-      size: 10,
+    const pdfWidth = page.getWidth();
+
+    const NFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    wrappedLines({
+      text: CName,
+      x: 160,
+      y: pdfHeight - 200,
+      maxWidth: pdfWidth - 260,
+      font: NFont,
+      fontSize: 11,
+      page,
+      lineGap: 2,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(ATI_CODE, {
-      x: 165,
+      x: 160,
       y: pdfHeight - 224,
-      size: 13,
+      size: 11,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(ExamCenterCode, {
-      x: 165,
+      x: 160,
       y: pdfHeight - 241,
-      size: 13,
+      size: 11,
       color: rgb(0, 0, 0),
     });
 
@@ -117,10 +126,8 @@ export async function filladmit({
     const command = new PutObjectCommand(params);
     await s3.send(command);
     const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/admit/${n}-${EnrollmentNo}.pdf`;
-
-    return pdfUrl;
-
     // fs.writeFileSync("filled_admit.pdf", pdfBytes);
+    return pdfUrl;
   } catch (error) {
     logger.error(error);
   }

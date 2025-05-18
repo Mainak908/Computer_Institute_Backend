@@ -69,7 +69,7 @@ export async function fillId({
     page.drawText(`ID NO: ${IdCardNo}`, {
       x: 70,
       y: pdfHeight - 1100,
-      size: 50,
+      size: 40,
       color: rgb(0, 0, 0),
     });
     const rem = 6 - countDigits(EnrollmentNo);
@@ -81,7 +81,7 @@ export async function fillId({
     page.drawText(`ENROLLMENT: YCTC${paddedCode}/${paddedNumber}`, {
       x: 70,
       y: pdfHeight - 1180,
-      size: 50,
+      size: 40,
       color: rgb(0, 0, 0),
     });
 
@@ -89,9 +89,9 @@ export async function fillId({
       text: `ADDRESS: ${address}`,
       x: 70,
       y: pdfHeight - 1260,
-      maxWidth: pdfWidth - 80,
+      maxWidth: pdfWidth - 140,
       font,
-      fontSize: 45,
+      fontSize: 40,
       page,
       lineGap: 5,
       color: rgb(0, 0, 0),
@@ -104,7 +104,7 @@ export async function fillId({
       y: pdfHeight - 1380,
       maxWidth: pdfWidth - 80,
       font,
-      fontSize: 45,
+      fontSize: 40,
       page,
       lineGap: 5,
       color: rgb(0, 0, 0),
@@ -124,7 +124,7 @@ export async function fillId({
       text: address,
       x: 23,
       y: pdfHeight - 1510,
-      maxWidth: pdfWidth - 300,
+      maxWidth: pdfWidth - 360,
       font,
       fontSize: 40,
       page,
@@ -135,7 +135,7 @@ export async function fillId({
     page.drawText(`ph: ${mobileNo}`, {
       x: 690,
       y: pdfHeight - 1656,
-      size: 45,
+      size: 40,
       color: rgb(1, 1, 1),
     });
 
@@ -150,8 +150,9 @@ export async function fillId({
     const command = new PutObjectCommand(params);
     await s3.send(command);
     const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/idcard/${n}-${IdCardNo}.pdf`;
-    return pdfUrl;
+
     // fs.writeFileSync("filled_id.pdf", pdfBytes);
+    return pdfUrl;
   } catch (error) {
     logger.error(error);
   }
