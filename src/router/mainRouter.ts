@@ -95,7 +95,7 @@ router
 router
   .route("/createEnrollment")
   .post(centerAuthCheckFn, ErrorHandler(createEnrollment));
-router.route("/amountFetch").post(centerAuthCheckFn, ErrorHandler(amountFetch));
+router.route("/amountFetch").get(centerAuthCheckFn, ErrorHandler(amountFetch));
 router.route("/amountEdit").post(centerAuthCheckFn, ErrorHandler(amountEdit));
 router
   .route("/exmmarksentry")

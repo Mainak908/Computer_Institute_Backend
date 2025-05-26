@@ -33,11 +33,6 @@ enum Nationality {
   FOREIGNER
 }
 
-enum statusType {
-  passout
-  pending
-}
-
 enum IdType {
   aadhaar
   BirthCertificate

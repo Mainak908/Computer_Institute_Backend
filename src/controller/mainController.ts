@@ -148,20 +148,26 @@ export async function deActivateEnrollment(req: Request, res: Response) {
 
   res.json({ success: true });
 }
-
 export async function AllEnrollments(req: Request, res: Response) {
-  //check
-  const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
-  const skip = (page - 1) * limit;
+  const cursorId = req.query.cursor as string | undefined;
+
+  const whereClause = {
+    isdeleted: false,
+    ...(req.Role === "CENTER" ? { centerid: Number(req.centerId) } : {}),
+  };
 
   const enrollments = await prisma.enrollment.findMany({
-    skip,
-    take: limit,
-    where:
-      req.Role === "CENTER"
-        ? { centerid: Number(req.centerId), isdeleted: false }
-        : { isdeleted: false },
+    take: limit + 1,
+    orderBy: {
+      EnrollmentNo: "desc",
+    },
+
+    ...(cursorId && {
+      cursor: { EnrollmentNo: parseInt(cursorId) },
+    }),
+
+    where: whereClause,
     select: {
       admitLink: true,
       certificateLink: true,
@@ -187,8 +193,13 @@ export async function AllEnrollments(req: Request, res: Response) {
     },
   });
 
-  const total = await prisma.enrollment.count(); // Get total count for pagination
-  res.json({ enrollments, total });
+  const hasNextPage = enrollments.length > limit;
+  const nextCursor = hasNextPage ? enrollments.pop()?.EnrollmentNo : null;
+
+  res.json({
+    enrollments,
+    nextCursor,
+  });
 }
 
 export async function deleteEnquiry(req: Request, res: Response) {
@@ -531,9 +542,17 @@ export async function exmmarksentry(req: Request, res: Response) {
 }
 
 export async function exmformsfetch(req: Request, res: Response) {
-  //FIXME
-  const data = await prisma.examForm.findMany({
+  const limit = parseInt(req.query.limit as string) || 10;
+  const cursorId = req.query.cursor as string | undefined;
+
+  const enrollments = await prisma.examForm.findMany({
+    take: limit + 1,
+    ...(cursorId && {
+      cursor: { EnrollmentNo: parseInt(cursorId) },
+    }),
+
     where: {},
+
     include: {
       enrollment: {
         select: {
@@ -563,16 +582,30 @@ export async function exmformsfetch(req: Request, res: Response) {
       },
     },
     orderBy: {
-      createdAt: "asc",
+      EnrollmentNo: "desc",
     },
   });
 
-  res.json(data);
+  const hasNextPage = enrollments.length > limit;
+  const nextCursor = hasNextPage ? enrollments.pop()?.EnrollmentNo : null;
+
+  res.json({
+    enrollments,
+    nextCursor,
+  });
 }
 
 export async function marksheetfetch(req: Request, res: Response) {
-  const data = await prisma.marks.findMany({
+  const limit = parseInt(req.query.limit as string) || 10;
+  const cursorId = req.query.cursor as string | undefined;
+
+  const enrollments = await prisma.marks.findMany({
+    take: limit + 1,
     where: {},
+    ...(cursorId && {
+      cursor: { EnrollmentNo: parseInt(cursorId) },
+    }),
+
     include: {
       enrollment: {
         // First include enrollment
@@ -599,11 +632,17 @@ export async function marksheetfetch(req: Request, res: Response) {
       },
     },
     orderBy: {
-      createdAt: "asc",
+      EnrollmentNo: "desc",
     },
   });
 
-  res.json({ success: true, data });
+  const hasNextPage = enrollments.length > limit;
+  const nextCursor = hasNextPage ? enrollments.pop()?.EnrollmentNo : null;
+
+  res.json({
+    enrollments,
+    nextCursor,
+  });
 }
 
 export async function TakeEnquiry(req: Request, res: Response) {
@@ -720,11 +759,21 @@ export async function examFormFillup(req: Request, res: Response) {
 export async function amountFetch(req: Request, res: Response) {
   const id = Number(req.centerId);
 
-  const data = await prisma.enrollment.findMany({
+  const limit = parseInt(req.query.limit as string) || 10;
+  const cursorId = req.query.cursor as string | undefined;
+
+  const enrollments = await prisma.enrollment.findMany({
+    take: limit + 1,
+
     where: {
       centerid: id,
       isdeleted: false,
     },
+
+    ...(cursorId && {
+      cursor: { EnrollmentNo: parseInt(cursorId) },
+    }),
+
     select: {
       name: true,
       EnrollmentNo: true,
@@ -743,9 +792,18 @@ export async function amountFetch(req: Request, res: Response) {
         },
       },
     },
+    orderBy: {
+      EnrollmentNo: "desc",
+    },
   });
 
-  res.json({ success: true, data });
+  const hasNextPage = enrollments.length > limit;
+  const nextCursor = hasNextPage ? enrollments.pop()?.EnrollmentNo : null;
+
+  res.json({
+    enrollments,
+    nextCursor,
+  });
 }
 
 export async function amountEdit(req: Request, res: Response) {
