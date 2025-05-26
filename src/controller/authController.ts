@@ -126,6 +126,31 @@ export async function loginCheckFunc(req: Request, res: Response) {
         where: {
           EnrollmentNo: parseInt(user.eno),
         },
+
+        select: {
+          EnrollmentNo: true,
+          mobileNo: true,
+          dob: true,
+          mother: true,
+          name: true,
+          center: {
+            select: {
+              Centername: true,
+            },
+          },
+          centerid: true,
+          IdCardNo: true,
+          email: true,
+          father: true,
+          imageLink: true,
+
+          status: true,
+          course: {
+            select: {
+              CName: true,
+            },
+          },
+        },
       });
 
       res.json({ loggedIn: true, user: data });
@@ -164,6 +189,29 @@ export async function studentLogin(req: Request, res: Response) {
     where: {
       EnrollmentNo,
       dob,
+    },
+    select: {
+      EnrollmentNo: true,
+      mobileNo: true,
+      name: true,
+      dob: true,
+      mother: true,
+      center: {
+        select: {
+          Centername: true,
+        },
+      },
+      IdCardNo: true,
+      imageLink: true,
+      email: true,
+      centerid: true,
+      father: true,
+      status: true,
+      course: {
+        select: {
+          CName: true,
+        },
+      },
     },
   });
 
