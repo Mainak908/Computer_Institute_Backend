@@ -15,6 +15,7 @@ import { fillId } from "../Generetor/id.js";
 import { filladmit } from "../Generetor/admit.js";
 import { fillCertificate } from "../Generetor/certificate.js";
 import { fillMarksheet } from "../Generetor/marksheet.js";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 export async function createEnrollment(req: Request, res: Response) {
   const {
@@ -836,6 +837,52 @@ export async function amountEdit(req: Request, res: Response) {
   res.json({ success: true });
 }
 
+export async function StudentData(req: Request, res: Response) {
+  const { accessToken } = req.signedCookies;
+
+  if (!accessToken) {
+    res.json({ success: false });
+    return;
+  }
+
+  const user = jwt.verify(accessToken, process.env.TOKEN_SECRET!) as JwtPayload;
+
+  if (!user) {
+    res.json({ loggedIn: false }).status(401);
+    return;
+  }
+
+  const data = await prisma.enrollment.findFirst({
+    where: {
+      EnrollmentNo: parseInt(user.id),
+    },
+    select: {
+      EnrollmentNo: true,
+      mobileNo: true,
+      name: true,
+      dob: true,
+      mother: true,
+      center: {
+        select: {
+          Centername: true,
+        },
+      },
+      IdCardNo: true,
+      imageLink: true,
+      email: true,
+      centerid: true,
+      father: true,
+      status: true,
+      course: {
+        select: {
+          CName: true,
+        },
+      },
+    },
+  });
+
+  res.json(data);
+}
 export async function VerifyEnquiry(req: Request, res: Response) {
   //ekta center create hobe and admin assign hobe
 

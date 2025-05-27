@@ -41,6 +41,7 @@ import {
   updateCourse,
   updateEnrollment,
   fetchAllCourseWithSub,
+  StudentData,
 } from "../controller/mainController.js";
 import { ErrorHandler } from "../errhandling.js";
 import {
@@ -68,6 +69,8 @@ router.route("/loginRoute").post(loginFunc);
 router.route("/loginCheckRoute").get(loginCheckFunc); //max api rate limit hit korte pare
 router.route("/logout").get(ErrorHandler(logoutfunc));
 router.route("/studentLogin").post(ErrorHandler(studentLogin));
+
+router.route("/studentData").get(ErrorHandler(StudentData));
 
 //internal route
 

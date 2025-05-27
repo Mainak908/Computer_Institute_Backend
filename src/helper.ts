@@ -12,7 +12,7 @@ import { s3 } from "./index.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import logger from "./logger.js";
-import { Prisma } from "../generate/index.js";
+import { Prisma, User } from "../generate/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -192,8 +192,17 @@ export const accessTokenCookieOptions: CookieOptions = {
   signed: true,
 };
 
-export const Cookiehelper = (res: Response, user: any) => {
-  const { password: m, ...userWithoutPassword } = user;
+export const Cookiehelper = (res: Response, user: User) => {
+  const {
+    password,
+    TwoFaEnabled,
+    TwoFaSecret,
+    enquiryid,
+    resetToken,
+    resetTokenExpiry,
+    isdeleted,
+    ...userWithoutPassword
+  } = user;
   const token = jwt.sign(userWithoutPassword, process.env.TOKEN_SECRET!, {
     expiresIn: "12h",
   });

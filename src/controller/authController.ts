@@ -7,7 +7,7 @@ import {
   formatDateForJS,
   getNextId,
 } from "../helper.js";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { z } from "zod";
 import logger from "../logger.js";
 import { authenticator } from "otplib";
@@ -113,47 +113,14 @@ export async function loginCheckFunc(req: Request, res: Response) {
     const { accessToken } = req.signedCookies;
 
     if (!accessToken) {
-      res.json({ loggedIn: false });
+      res.json({ loggedIn: false }).status(401);
       return;
     }
-    const user = jwt.verify(
-      accessToken,
-      process.env.TOKEN_SECRET!
-    ) as jwt.JwtPayload & { eno?: string };
 
-    if (user.eno) {
-      const data = await prisma.enrollment.findFirst({
-        where: {
-          EnrollmentNo: parseInt(user.eno),
-        },
+    const user = jwt.verify(accessToken, process.env.TOKEN_SECRET!);
 
-        select: {
-          EnrollmentNo: true,
-          mobileNo: true,
-          dob: true,
-          mother: true,
-          name: true,
-          center: {
-            select: {
-              Centername: true,
-            },
-          },
-          centerid: true,
-          IdCardNo: true,
-          email: true,
-          father: true,
-          imageLink: true,
-
-          status: true,
-          course: {
-            select: {
-              CName: true,
-            },
-          },
-        },
-      });
-
-      res.json({ loggedIn: true, user: data });
+    if (!user) {
+      res.json({ loggedIn: false }).status(401);
       return;
     }
 
@@ -192,26 +159,8 @@ export async function studentLogin(req: Request, res: Response) {
     },
     select: {
       EnrollmentNo: true,
-      mobileNo: true,
-      name: true,
-      dob: true,
-      mother: true,
-      center: {
-        select: {
-          Centername: true,
-        },
-      },
-      IdCardNo: true,
-      imageLink: true,
       email: true,
-      centerid: true,
-      father: true,
-      status: true,
-      course: {
-        select: {
-          CName: true,
-        },
-      },
+      name: true,
     },
   });
 
@@ -220,13 +169,20 @@ export async function studentLogin(req: Request, res: Response) {
     return;
   }
 
-  const token = jwt.sign({ eno: EnrollmentNo }, process.env.TOKEN_SECRET!, {
+  const user = {
+    email: data.email,
+    name: data.name,
+    id: data.EnrollmentNo,
+    role: "STUDENT",
+  };
+
+  const token = jwt.sign(user, process.env.TOKEN_SECRET!, {
     expiresIn: "1h",
   });
   res
     .cookie("accessToken", token, accessTokenCookieOptions)
     .status(200)
-    .json({ success: true, data });
+    .json({ success: true, data: user });
 }
 
 export async function generateSecret(req: Request, res: Response) {
