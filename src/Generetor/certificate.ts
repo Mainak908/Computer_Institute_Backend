@@ -103,7 +103,7 @@ export async function fillCertificate({
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(`${Duration.toString()} MONTH`, {
+    page.drawText(`${Duration.toString()} MONTHS`, {
       x: 145,
       y: pdfHeight - 367,
       size: fontSize,
