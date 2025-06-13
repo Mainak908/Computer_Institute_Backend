@@ -212,10 +212,11 @@ model Enquiry {
 }
 
 model Notices {
-  id      Int      @id @default(autoincrement())
-  heading String
-  body    String
-  upto    DateTime
+  id        Int      @id @default(autoincrement())
+  heading   String
+  body      String
+  upto      DateTime
+  createdAt DateTime @default(now())
 }
 
 model State {
