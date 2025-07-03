@@ -65,6 +65,7 @@ import { generate_franchise } from "../controller/generetor.js";
 const router = Router();
 
 // auth route
+//test
 router.route("/loginRoute").post(loginFunc);
 router.route("/loginCheckRoute").get(loginCheckFunc); //max api rate limit hit korte pare
 router.route("/logout").get(ErrorHandler(logoutfunc));
