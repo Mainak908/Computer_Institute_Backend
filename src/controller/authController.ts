@@ -7,7 +7,7 @@ import {
   formatDateForJS,
   getNextId,
 } from "../helper.js";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { z } from "zod";
 import logger from "../logger.js";
 import { authenticator } from "otplib";
@@ -47,23 +47,23 @@ export async function loginFunc(req: Request, res: Response) {
     });
 
     if (!user) {
-      res.status(200).json({ message: "User not found" });
+      res.status(401).json({ success: false, message: "User not found" });
       return;
     }
     // Compare passwords
     const isPasswordValid = await Bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      res.status(200).json({ message: "Invalid credentials" });
+      res.status(401).json({ success: false, message: "Invalid credentials" });
       return;
     }
     if (user.TwoFaEnabled) {
-      res.status(200).json({ message: "enabled" });
+      res.status(200).json({ success: true, twoFA: true });
       return;
     }
     Cookiehelper(res, user);
   } catch (error) {
-    res.status(500).json({ message: "Login failed" });
+    res.status(500).json({ success: false, message: "Login failed" });
   }
 }
 
@@ -165,7 +165,7 @@ export async function studentLogin(req: Request, res: Response) {
   });
 
   if (!data) {
-    res.json({ success: false });
+    res.json({ success: false }).status(401);
     return;
   }
 
@@ -216,7 +216,7 @@ export async function otpVerify(req: Request, res: Response) {
   });
 
   if (!user || !user.TwoFaSecret) {
-    res.json({ success: false });
+    res.json({ success: false }).status(401);
     return;
   }
 
@@ -226,7 +226,7 @@ export async function otpVerify(req: Request, res: Response) {
   });
 
   if (!isValid) {
-    res.json({ success: isValid });
+    res.status(401).json({ success: isValid });
     return;
   }
 
@@ -252,7 +252,7 @@ export async function otpInput(req: Request, res: Response) {
   });
 
   if (!user || !user.TwoFaSecret) {
-    res.json({ success: false });
+    res.status(401).json({ success: false });
     return;
   }
 

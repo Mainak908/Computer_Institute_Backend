@@ -59,7 +59,7 @@ export async function sendPasswordResetEmail(
         <a href="${resetLink}" class="btn">Reset Password</a>
         <p>If you did not request this, please ignore this email.</p>
         <div class="footer">
-          <p>© 2024 YourCompany. All rights reserved.</p>
+          <p>© 2025 MNYCTC. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -147,7 +147,7 @@ export async function sendTemporaryPasswordEmail(
           
           <p>If you did not request this, please ignore this email.</p>
           <div class="footer">
-            <p>© 2024 YourCompany. All rights reserved.</p>
+            <p>© 2025 MNYCTC. All rights reserved.</p>
           </div>
         </div>
   

@@ -992,7 +992,7 @@ export async function ChangePassword(req: Request, res: Response) {
   });
 
   if (!data) {
-    res.json({ message: "no user found" });
+    res.status(401).json({ message: "no user found" });
     return;
   }
 
@@ -1208,7 +1208,7 @@ export async function Fetch_Coordinator(req: Request, res: Response) {
   const id = req.userId;
 
   if (!id) {
-    res.json({ success: false });
+    res.status(404).json({ success: false });
     return;
   }
 
@@ -1226,7 +1226,7 @@ export async function Fetch_Coordinator(req: Request, res: Response) {
   });
 
   if (!data?.enquiry?.dist) {
-    res.json({ success: false });
+    res.status(404).json({ success: false });
     return;
   }
 

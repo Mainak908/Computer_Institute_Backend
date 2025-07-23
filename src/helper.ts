@@ -209,7 +209,11 @@ export const Cookiehelper = (res: Response, user: User) => {
   res
     .cookie("accessToken", token, accessTokenCookieOptions)
     .status(200)
-    .json({ message: "Login successful", user: userWithoutPassword });
+    .json({
+      success: true,
+      message: "Login successful",
+      user: userWithoutPassword,
+    });
 };
 
 export const adjustCenteredTextPosition = (
