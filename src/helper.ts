@@ -195,7 +195,7 @@ export const accessTokenCookieOptions: CookieOptions = {
 export const Cookiehelper = (res: Response, user: User) => {
   const {
     password,
-    TwoFaEnabled,
+
     TwoFaSecret,
     enquiryid,
     resetToken,
@@ -203,17 +203,15 @@ export const Cookiehelper = (res: Response, user: User) => {
     isdeleted,
     ...userWithoutPassword
   } = user;
+
   const token = jwt.sign(userWithoutPassword, process.env.TOKEN_SECRET!, {
     expiresIn: "12h",
   });
-  res
-    .cookie("accessToken", token, accessTokenCookieOptions)
-    .status(200)
-    .json({
-      success: true,
-      message: "Login successful",
-      user: userWithoutPassword,
-    });
+  res.cookie("accessToken", token, accessTokenCookieOptions).status(200).json({
+    success: true,
+    message: "Login successful",
+    user: userWithoutPassword,
+  });
 };
 
 export const adjustCenteredTextPosition = (

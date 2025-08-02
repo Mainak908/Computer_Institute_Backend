@@ -9,7 +9,9 @@ interface iuserWithoutPassword {
   email: string;
   name: string;
   role: "ADMIN" | "CENTER";
+  TwoFaEnabled: boolean;
 }
+
 export const adminAuthCheckFn = async (
   req: Request,
   res: Response,
@@ -30,6 +32,7 @@ export const adminAuthCheckFn = async (
     ) as iuserWithoutPassword;
 
     req.Role = user.role;
+    req.userId = user.id;
 
     if (user.role !== "ADMIN") {
       res.status(403).json({ message: "Forbidden: Not a admin user" });
@@ -62,6 +65,7 @@ export const centerAuthCheckFn = async (
 
     req.Role = user.role;
     req.email = user.email;
+    req.userId = user.id;
 
     if (user.role === "CENTER") {
       const center = await prisma.center.findFirst({
@@ -81,7 +85,6 @@ export const centerAuthCheckFn = async (
       }
 
       req.centerId = center.code;
-      req.userId = user.id;
 
       return next();
     }

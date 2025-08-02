@@ -59,6 +59,7 @@ import {
   generateSecret,
   otpVerify,
   otpInput,
+  disable2fa,
 } from "../controller/authController.js";
 import { generate_franchise } from "../controller/generetor.js";
 
@@ -68,6 +69,7 @@ const router = Router();
 //test
 router.route("/loginRoute").post(loginFunc);
 router.route("/loginCheckRoute").get(loginCheckFunc); //max api rate limit hit korte pare
+router.route("/disable2fa").post(centerAuthCheckFn, ErrorHandler(disable2fa)); //max api rate limit hit korte pare
 router.route("/logout").get(ErrorHandler(logoutfunc));
 router.route("/studentLogin").post(ErrorHandler(studentLogin));
 

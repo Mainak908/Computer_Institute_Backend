@@ -139,6 +139,21 @@ export async function logoutfunc(req: Request, res: Response) {
 
     .json({ success: true });
 }
+export async function disable2fa(req: Request, res: Response) {
+  const id = req.userId;
+
+  await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      TwoFaEnabled: false,
+      TwoFaSecret: null,
+    },
+  });
+
+  res.json({ success: true });
+}
 
 export async function studentLogin(req: Request, res: Response) {
   const isvalidated = StudentloginSchema.safeParse(req.body);
