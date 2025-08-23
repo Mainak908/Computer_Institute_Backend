@@ -55,7 +55,6 @@ redisClient.on("error", (err) => logger.error("Redis Error:", err));
 
 const app = express();
 const PORT = 3001;
-app.set("trust proxy", 1);
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
