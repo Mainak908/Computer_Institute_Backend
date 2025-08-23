@@ -96,7 +96,7 @@ export const centerAuthCheckFn = async (
     res.status(403).json({ message: "Forbidden: Not a center admin user" });
     return;
   } catch (error) {
-    logger.error("Auth Middleware Error:", error);
+    logger.error(error, "Auth Middleware Error:");
     res.status(401).json({ message: "Unauthorized: Invalid or expired token" });
     return;
   }

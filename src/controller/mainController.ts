@@ -971,7 +971,7 @@ export async function VerifyEnquiry(req: Request, res: Response) {
 
     res.end();
   } catch (error) {
-    logger.error("Error in VerifyEnquiry:", error);
+    logger.error(error, "Error in VerifyEnquiry:");
     sendUpdate(-1, "An error occurred");
     res.end();
   }

@@ -51,7 +51,7 @@ dotenv.config();
 export const redisClient = new Redis(process.env.REDIS_UPSTASH!);
 
 redisClient.on("connect", () => logger.info("Connected to Redis"));
-redisClient.on("error", (err) => logger.error("Redis Error:", err));
+redisClient.on("error", (err) => logger.error(err, "Redis Error:"));
 
 const app = express();
 const PORT = 3001;
