@@ -67,13 +67,17 @@ export async function sendPasswordResetEmail(
   `;
 
   const mailOptions = {
-    from: "noreply@logicnook.site", // Sender email
+    from: `noreply@${process.env.DOMAIN_NAME}`, // Sender email
     to: toEmail, // Recipient email
     subject: "Reset Your Password",
     html: htmlTemplate,
   };
 
-  await resend.emails.send(mailOptions);
+  try {
+    await resend.emails.send(mailOptions);
+  } catch (error) {
+    console.log("error from sendPasswordResetEmail fn", error);
+  }
 }
 
 export async function sendTemporaryPasswordEmail(
@@ -156,7 +160,7 @@ export async function sendTemporaryPasswordEmail(
     `;
 
   const mailOptions = {
-    from: "noreply@logicnook.site", // Sender email
+    from: `noreply@${process.env.DOMAIN_NAME}`, // Sender email
     to: toEmail, // Recipient email
     subject: "Your Temporary Password",
     html: htmlTemplate,
