@@ -1,21 +1,22 @@
-import { Request, Response } from "express";
-import { prisma } from "../client.js";
 import Bcrypt from "bcryptjs";
+import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { authenticator } from "otplib";
+import qrcode from "qrcode";
+import { z } from "zod";
+import { prisma } from "../client.js";
 import {
   accessTokenCookieOptions,
   Cookiehelper,
   formatDateForJS,
   getNextId,
 } from "../helper.js";
-import jwt from "jsonwebtoken";
-import { z } from "zod";
 import logger from "../logger.js";
-import { authenticator } from "otplib";
-import qrcode from "qrcode";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  Role: z.string(),
 });
 
 const StudentloginSchema = z.object({
@@ -38,7 +39,7 @@ export async function loginFunc(req: Request, res: Response) {
       return;
     }
 
-    const { email, password } = isvalidated.data;
+    const { email, password, Role } = isvalidated.data;
 
     const user = await prisma.user.findFirst({
       where: {
@@ -50,6 +51,11 @@ export async function loginFunc(req: Request, res: Response) {
       res.status(401).json({ success: false, message: "User not found" });
       return;
     }
+    if (user.role !== Role.toUpperCase()) {
+      res.status(401).json({ success: false, message: "Role mismatch" });
+      return;
+    }
+
     // Compare passwords
     const isPasswordValid = await Bcrypt.compare(password, user.password);
 

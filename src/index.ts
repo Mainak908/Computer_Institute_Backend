@@ -1,22 +1,24 @@
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import dotenv from "dotenv";
-import express, { Request, Response } from "express";
-import router from "./router/mainRouter.js";
-import rateLimit from "express-rate-limit";
 import {
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { Redis } from "ioredis";
-import { prisma } from "./client.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import express, { Request, Response } from "express";
+import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import logger from "./logger.js";
-import { Resend } from "resend";
-import { pinoHttp } from "pino-http";
+import { Redis } from "ioredis";
 import os from "os";
+import { pinoHttp } from "pino-http";
+import { Resend } from "resend";
+import { prisma } from "./client.js";
+import logger from "./logger.js";
+import router from "./router/mainRouter.js";
+
+dotenv.config();
 
 const loggerHttp = pinoHttp({
   customLogLevel: function (res, err) {
@@ -45,8 +47,6 @@ const loggerHttp = pinoHttp({
 });
 
 export const resend = new Resend(process.env.RESEND_KEY);
-
-dotenv.config();
 
 export const redisClient = new Redis(process.env.REDIS_UPSTASH!);
 
