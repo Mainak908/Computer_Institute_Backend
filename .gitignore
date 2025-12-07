@@ -3,3 +3,4 @@ node_modules
 pnpm*.yaml
 generate
 dist
+.vscode
