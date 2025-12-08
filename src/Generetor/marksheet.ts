@@ -1,11 +1,11 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import axios from "axios";
+import fs from "fs";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import QRCode from "qrcode";
 import { MarksheetData, countDigits, wrappedLines } from "../helper.js";
 import { s3 } from "../index.js";
 import logger from "../logger.js";
-import QRCode from "qrcode";
-import fs from "fs";
 
 export async function fillMarksheet(data: MarksheetData) {
   try {
@@ -40,14 +40,14 @@ export async function fillMarksheet(data: MarksheetData) {
     const { width, height } = qrImage.scale(0.27);
 
     page.drawImage(qrImage, {
-      x: 35, // Adjust X position
-      y: pdfHeight - 180, // Adjust Y position (PDF starts from bottom-left)
+      x: 24, // Adjust X position
+      y: pdfHeight - 188, // Adjust Y position (PDF starts from bottom-left)
       width,
       height,
     });
     page.drawImage(Image, {
-      x: 525, // Adjust X position
-      y: pdfHeight - 180, // Adjust Y position (PDF coordinates start from bottom-left)
+      x: 490, // Adjust X position
+      y: pdfHeight - 188, // Adjust Y position (PDF coordinates start from bottom-left)
       width,
       height,
     });
@@ -62,46 +62,46 @@ export async function fillMarksheet(data: MarksheetData) {
 
     // Student Information
     page.drawText(data.enrollment.name.toUpperCase(), {
-      x: 158,
-      y: pdfHeight - 218,
+      x: 129,
+      y: pdfHeight - 202, //komale upore uthbe
       size: 12,
       color: rgb(0, 0, 0),
     });
     page.drawText(`YCTC${paddedCode}/${paddedNumber}`, {
-      x: 487,
-      y: pdfHeight - 218,
+      x: 465,
+      y: pdfHeight - 202,
       size: 12,
       color: rgb(0, 0, 0),
     });
     page.drawText(data.enrollment.father.toUpperCase(), {
-      x: 102,
-      y: pdfHeight - 243,
+      x: 129,
+      y: pdfHeight - 222,
       size: 12,
       color: rgb(0, 0, 0),
     });
     page.drawText(data.year, {
-      x: 415,
-      y: pdfHeight - 243,
+      x: 465,
+      y: pdfHeight - 222,
       size: 12,
       color: rgb(0, 0, 0),
     });
 
     wrappedLines({
       text: data.enrollment.course.CName,
-      x: 136,
-      y: pdfHeight - 262,
+      x: 129,
+      y: pdfHeight - 236,
       maxWidth: pdfWidth - 380,
       font: NFont,
-      fontSize: 12,
+      fontSize: 11,
       page,
-      lineGap: 2,
+      lineGap: 1,
       color: rgb(0, 0, 0),
     });
     page.drawText(
       `${data.enrollment.course.Duration.toString().toUpperCase()} MONTHS`,
       {
-        x: 500,
-        y: pdfHeight - 269,
+        x: 465,
+        y: pdfHeight - 240,
         size: 12,
         color: rgb(0, 0, 0),
       }
@@ -109,36 +109,36 @@ export async function fillMarksheet(data: MarksheetData) {
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    let yPosition = pdfHeight - 405;
+    let yPosition = pdfHeight - 370;
 
     wrappedLines({
       text: data.enrollment.center.Centername,
-      x: 130,
-      y: pdfHeight - 290,
+      x: 129,
+      y: pdfHeight - 260,
       maxWidth: pdfWidth - 355,
       font,
-      fontSize: 12,
+      fontSize: 11,
       page,
-      lineGap: 3,
+      lineGap: 1,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(`YCTC${paddedCode}`, {
-      x: 480,
-      y: pdfHeight - 295,
+      x: 465,
+      y: pdfHeight - 261,
       size: 12,
       color: rgb(0, 0, 0),
     });
     page.drawText(data.enrollment.center.address.toUpperCase(), {
-      x: 146,
-      y: pdfHeight - 320,
+      x: 129,
+      y: pdfHeight - 284,
       size: 12,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(new Date(data.enrollment.dob).toLocaleDateString("en-GB"), {
-      x: 470,
-      y: pdfHeight - 320,
+      x: 465,
+      y: pdfHeight - 281,
       size: 12,
       color: rgb(0, 0, 0),
     });
@@ -166,7 +166,7 @@ export async function fillMarksheet(data: MarksheetData) {
       totalPracticalFullMarks += pfm;
 
       page.drawText(sl.toString(), {
-        x: 28,
+        x: 24,
         y: yPosition,
         size: 13,
         font: boldFont,
@@ -227,7 +227,7 @@ export async function fillMarksheet(data: MarksheetData) {
 
     page.drawText(totalTheoryFullMarks.toString(), {
       x: 290,
-      y: pdfHeight - 645,
+      y: pdfHeight - 684,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
@@ -235,7 +235,7 @@ export async function fillMarksheet(data: MarksheetData) {
 
     page.drawText(totalPracticalFullMarks.toString(), {
       x: 355,
-      y: pdfHeight - 645,
+      y: pdfHeight - 684,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
@@ -243,7 +243,7 @@ export async function fillMarksheet(data: MarksheetData) {
 
     page.drawText(totalTheoryMarks.toString(), {
       x: 426,
-      y: pdfHeight - 645,
+      y: pdfHeight - 684,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
@@ -251,7 +251,7 @@ export async function fillMarksheet(data: MarksheetData) {
 
     page.drawText(totalPracticalMarks.toString(), {
       x: 490,
-      y: pdfHeight - 645,
+      y: pdfHeight - 684,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
@@ -259,29 +259,29 @@ export async function fillMarksheet(data: MarksheetData) {
 
     // Grand Total, Percentage, Grade, and Result
     page.drawText(data.totalMarks.toString(), {
-      x: 555,
-      y: pdfHeight - 645,
+      x: 545,
+      y: pdfHeight - 684,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
     });
     page.drawText(data.percentage.toFixed(2) + "%", {
-      x: 285,
-      y: pdfHeight - 672,
+      x: 276,
+      y: pdfHeight - 705,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
     });
     page.drawText(data.grade, {
-      x: 560,
-      y: pdfHeight - 672,
+      x: 550,
+      y: pdfHeight - 705,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
     });
     page.drawText(data.remarks, {
       x: 50,
-      y: pdfHeight - 672,
+      y: pdfHeight - 706,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
@@ -290,8 +290,8 @@ export async function fillMarksheet(data: MarksheetData) {
     const issueDate = new Date(data.createdAt).toLocaleDateString("en-GB");
 
     page.drawText(issueDate, {
-      x: 150,
-      y: pdfHeight - 700,
+      x: 170,
+      y: pdfHeight - 730,
       size: 13,
       font: boldFont,
       color: rgb(0, 0, 0),
