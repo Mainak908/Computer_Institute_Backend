@@ -1,8 +1,10 @@
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import axios from "axios";
 import fs from "fs";
 import { PDFDocument, rgb } from "pdf-lib";
 import QRCode from "qrcode";
 import { MarksheetData, countDigits } from "../helper.js";
+import { s3 } from "../index.js";
 import logger from "../logger.js";
 
 export async function fillCertificate({
@@ -95,8 +97,8 @@ export async function fillCertificate({
       color: rgb(0, 0, 0),
     });
     page.drawText(CName, {
-      x: 130,
-      y: pdfHeight - 356,
+      x: 122,
+      y: pdfHeight - 359,
       size: 15,
       color: rgb(0, 0, 0),
     });
@@ -128,15 +130,15 @@ export async function fillCertificate({
     const paddedCode = code.toString().padStart(remcode, "0");
 
     page.drawText(`YCTC${paddedCode}/${paddedNumber}`, {
-      x: 465,
+      x: 452,
       y: pdfHeight - 450,
       size: 13,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(Centername, {
-      x: 190,
-      y: pdfHeight - 495,
+      x: 182,
+      y: pdfHeight - 497,
       size: 13,
       color: rgb(0, 0, 0),
     });
@@ -161,12 +163,12 @@ export async function fillCertificate({
       ContentType: "application/pdf",
     };
 
-    // const command = new PutObjectCommand(params);
-    // await s3.send(command);
-    // const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/certificates/${n}-${totalMarks}.pdf`;
+    const command = new PutObjectCommand(params);
+    await s3.send(command);
+    const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/certificates/${n}-${totalMarks}.pdf`;
 
-    fs.writeFileSync("filled_certificate.pdf", pdfBytes);
-    return "pdfUrl";
+    // fs.writeFileSync("filled_certificate.pdf", pdfBytes);
+    return pdfUrl;
   } catch (error) {
     logger.error(error);
   }
