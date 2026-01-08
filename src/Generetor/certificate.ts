@@ -1,11 +1,9 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 import axios from "axios";
-import { PDFDocument, rgb } from "pdf-lib";
-import { MarksheetData, countDigits } from "../helper.js";
-import { s3 } from "../index.js";
-import logger from "../logger.js";
-import QRCode from "qrcode";
 import fs from "fs";
+import { PDFDocument, rgb } from "pdf-lib";
+import QRCode from "qrcode";
+import { MarksheetData, countDigits } from "../helper.js";
+import logger from "../logger.js";
 
 export async function fillCertificate({
   grade,
@@ -84,41 +82,41 @@ export async function fillCertificate({
       color: rgb(0, 0, 0),
     });
     page.drawText(name, {
-      x: 231,
-      y: pdfHeight - 265,
+      x: 240,
+      y: pdfHeight - 252,
       size: fontSize,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(father, {
-      x: 248,
+      x: 200,
       y: pdfHeight - 291,
       size: fontSize,
       color: rgb(0, 0, 0),
     });
     page.drawText(CName, {
-      x: 153,
-      y: pdfHeight - 341,
+      x: 130,
+      y: pdfHeight - 356,
       size: 15,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(`${Duration.toString()} MONTHS`, {
-      x: 145,
-      y: pdfHeight - 367,
+      x: 110,
+      y: pdfHeight - 400,
       size: fontSize,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(year, {
-      x: 486,
-      y: pdfHeight - 367,
+      x: 466,
+      y: pdfHeight - 400,
       size: 15,
       color: rgb(0, 0, 0),
     });
     page.drawText(grade, {
-      x: 270,
-      y: pdfHeight - 392,
+      x: 246,
+      y: pdfHeight - 450,
       size: fontSize,
       color: rgb(0, 0, 0),
     });
@@ -130,15 +128,15 @@ export async function fillCertificate({
     const paddedCode = code.toString().padStart(remcode, "0");
 
     page.drawText(`YCTC${paddedCode}/${paddedNumber}`, {
-      x: 479,
-      y: pdfHeight - 392,
+      x: 465,
+      y: pdfHeight - 450,
       size: 13,
       color: rgb(0, 0, 0),
     });
 
     page.drawText(Centername, {
-      x: 200,
-      y: pdfHeight - 417,
+      x: 190,
+      y: pdfHeight - 495,
       size: 13,
       color: rgb(0, 0, 0),
     });
@@ -146,8 +144,8 @@ export async function fillCertificate({
     const issueDate = new Date(createdAt).toLocaleDateString("en-GB");
 
     page.drawText(issueDate, {
-      x: 300,
-      y: pdfHeight - 445,
+      x: 280,
+      y: pdfHeight - 540,
       size: fontSize,
       color: rgb(0, 0, 0),
     });
@@ -163,14 +161,14 @@ export async function fillCertificate({
       ContentType: "application/pdf",
     };
 
-    const command = new PutObjectCommand(params);
-    await s3.send(command);
-    const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/certificates/${n}-${totalMarks}.pdf`;
+    // const command = new PutObjectCommand(params);
+    // await s3.send(command);
+    // const pdfUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/certificates/${n}-${totalMarks}.pdf`;
 
-    return pdfUrl;
-
-    // fs.writeFileSync("filled_certificate.pdf", pdfBytes);
+    fs.writeFileSync("filled_certificate.pdf", pdfBytes);
+    return "pdfUrl";
   } catch (error) {
     logger.error(error);
   }
 }
+// y komale uthbe
