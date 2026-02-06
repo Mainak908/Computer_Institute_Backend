@@ -8,6 +8,7 @@ Central admin can generate admits, marksheet, Certificates and upload educationa
 ![Framework](https://img.shields.io/badge/Web%20Framework-Express.js-yellow?style=flat-square)
 ![License](https://img.shields.io/github/license/Mainak908/Computer-Institute)
 
+
 ---
 
 ## 🧩 Features
